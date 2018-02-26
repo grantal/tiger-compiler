@@ -20,14 +20,28 @@ extern "C"{
 					DO,LET,IN,END,OF,
 					BREAK,NIL,FUNCTION,
 					VAR,TYPE,IMPORT,PRIMITIVE,
-					CLASS,EXTENDS,METHODS,NEW};
+					CLASS,EXTENDS,METHODS,NEW,
+                                        COMMA,COLON,SEMICOLON,
+                                        LPAREN,RPAREN,LBRACKET,RBRACKET,
+                                        LBRACE,RBRACE,DOT,PLUS,MINUS,STAR,
+                                        FSLASH,EQUAL,NOTEQUAL,LESS,GREATER,
+                                        ELESS,EGREATER,AND,OR,
+                                        ASSIGNMENT,ENDL,STRINGLIT,INTLIT,
+                                        IDENTIFIER,ERROR};
 
 	const std::vector<std::string>  tStr = {"array","if","then",
 				  "else","while","for","to",
 				  "do","let","in","end","of",
 				  "break","nil","function",
 				  "var","type","import","primitive",
-				  "class","extends","methods","new"};
+				  "class","extends","methods","new",
+                                  "comma","colon","semicolon",
+                                  "lparen","rparen","lbracket","rbracket",
+                                  "lbrace","rbrace","dot","plus","minus","star",
+                                  "fslash","equal","notequal","less","greater",
+                                  "eless","egreater","and","or",
+                                  "assignment","endl","stringlit","intlit",
+                                  "identifier","error"};
 
 	const std::vector<std::string> tGarbage = {"array","if","then",
 				  "else","while","for","to",
@@ -35,9 +49,13 @@ extern "C"{
 				  "break","nil","function",
 				  "var","type","import","primitive",
 				  "class","extends","methods","new",
-				  ",",":",";","(",")","[","]",".","+",
-				  "-","*","/","==","<>","<",">","=>","=<",
-				  "=","\"foo\"","239"," ","\t","\n"};
+				  ",",":",";",
+                                  "(",")","[","]",
+                                  "{","}",".","+","-","*",
+                                  "/","==","<>","<",">",
+                                  "=>","=<","&","|"
+				  ":=","\r","\"foo\"","239",
+                                  "id", "!err"};
 
 /*Loops through parallel arrays tStr and tEnm, feeding
 in a test string from tStr with the desired output at the same
