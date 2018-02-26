@@ -95,7 +95,55 @@ TEST_CASE("Test Case for keywords with suffix garbage","[tokens]") {
 }
 
 
+/*Makes sure everything in the list tEndl is an endline character
+*/
+TEST_CASE("More endline tests","[tokens]") {
 
+	const std::vector<std::string>  tEndl = {"\n", "\r", "\n\r", "\r\n"};
+
+	YY_BUFFER_STATE testBuffer;
+
+	for(auto i=0; i < static_cast<int>(tEndl.size());++i){
+		SECTION("Plain test for newline character " + tEndl[i]){
+			testBuffer = yy_scan_string(tEndl[i].c_str());
+			yy_switch_to_buffer(testBuffer);
+			REQUIRE(yylex() == ENDL);
+			yy_delete_buffer(testBuffer);
+		}
+	}
+
+}
+
+/*Makes sure everything in the list tStrlit is a string literal
+*/
+TEST_CASE("More string literal tests","[tokens]") {
+
+	const std::vector<std::string>  tStrlit = {"\" \"","\"!\"","\"\\\"\"","\"#\"","\"$\"",
+                "\"%\"","\"&\"","\"'\"","\"(\"","\")\"","\"*\"","\"+\"","\",\"","\"-\"",
+                "\".\"","\"/\"","\"0\"","\"1\"","\"2\"","\"3\"","\"4\"","\"5\"","\"6\"",
+                "\"7\"","\"8\"","\"9\"","\":\"","\";\"","\"<\"","\"=\"","\">\"","\"?\"",
+                "\"@\"","\"A\"","\"B\"","\"C\"","\"D\"","\"E\"","\"F\"","\"G\"","\"H\"",
+                "\"I\"","\"J\"","\"K\"","\"L\"","\"M\"","\"N\"","\"O\"","\"P\"","\"Q\"",
+                "\"R\"","\"S\"","\"T\"","\"U\"","\"V\"","\"W\"","\"X\"","\"Y\"","\"Z\"",
+                "\"[\"","\"\\\"","\"]\"","\"^\"","\"_\"","\"`\"","\"a\"","\"b\"","\"c\"",
+                "\"d\"","\"e\"","\"f\"","\"g\"","\"h\"","\"i\"","\"j\"","\"k\"","\"l\"",
+                "\"m\"","\"n\"","\"o\"","\"p\"","\"q\"","\"r\"","\"s\"","\"t\"","\"u\"",
+                "\"v\"","\"w\"","\"x\"","\"y\"","\"z\"","\"{\"","\"|\"","\"}\"","\"~\"",
+                "\"     \"","\"\\n\"","\"\\r\"","\"\\n\\r\"","\"\\r\\n\"",
+                "\"longer string of stuff\""};
+
+	YY_BUFFER_STATE testBuffer;
+
+	for(auto i=0; i < static_cast<int>(tStrlit.size());++i){
+		SECTION("Plain test for integer " + tStrlit[i]){
+			testBuffer = yy_scan_string(tStrlit[i].c_str());
+			yy_switch_to_buffer(testBuffer);
+			REQUIRE(yylex() == STRINGLIT);
+			yy_delete_buffer(testBuffer);
+		}
+	}
+
+}
 /*Makes sure everything in the list tInt is an Integer literal
 */
 TEST_CASE("More integer tests","[tokens]") {
