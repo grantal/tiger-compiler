@@ -171,7 +171,7 @@ TEST_CASE("More integer tests","[tokens]") {
 */
 TEST_CASE("More identifier tests","[tokens]") {
 
-	const std::vector<std::string>  tId = {"myid", "m2389478", "y___203940923_efljg_fjgnjk"};
+	const std::vector<std::string>  tId = {"myid", "m2389478", "y___203940923_efljg_fjgnjk", "_main"};
 
 	YY_BUFFER_STATE testBuffer;
 
@@ -189,7 +189,7 @@ TEST_CASE("More identifier tests","[tokens]") {
 */
 TEST_CASE("make sure some strings throw errors","[tokens]") {
 
-	const std::vector<std::string>  tErr = {"!"};
+	const std::vector<std::string>  tErr = {"!", "_man", "_mayn", "_anythingelse"};
 
 	YY_BUFFER_STATE testBuffer;
 
@@ -209,5 +209,24 @@ TEST_CASE("make sure some strings throw errors","[tokens]") {
 TEST_CASE("make sure real file test1.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test1.tig", "r");
     REQUIRE(yylex() == LET);
+    REQUIRE(yylex() == TYPE);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ARRAY);
+    REQUIRE(yylex() == OF);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == VAR);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == COLON);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ASSIGNMENT);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == LBRACKET);
+    REQUIRE(yylex() == INTLIT);
+    REQUIRE(yylex() == RBRACKET);
+    REQUIRE(yylex() == OF);
+    REQUIRE(yylex() == INTLIT);
+    REQUIRE(yylex() == IN);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == END);
     fclose(yyin);
 }
