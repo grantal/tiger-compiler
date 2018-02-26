@@ -12,7 +12,7 @@ extern "C"{
 	extern YY_BUFFER_STATE yy_scan_string(const char*);
 	extern void yy_switch_to_buffer(YY_BUFFER_STATE);
 	extern void yy_delete_buffer(YY_BUFFER_STATE);
-	//extern FILE* yyin;
+	extern FILE* yyin;
 }
 
 	const std::vector<int> tEnm = {ARRAY,IF,THEN,
@@ -202,4 +202,12 @@ TEST_CASE("make sure some strings throw errors","[tokens]") {
 		}
 	}
 
+}
+
+/* These next few tests will be reading from files
+*/
+TEST_CASE("make sure real file test1.tig works","[tokens]") {
+    yyin = fopen("tiger-programs/test1.tig", "r");
+    REQUIRE(yylex() == LET);
+    fclose(yyin);
 }
