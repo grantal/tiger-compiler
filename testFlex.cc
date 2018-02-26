@@ -135,7 +135,7 @@ TEST_CASE("More string literal tests","[tokens]") {
 	YY_BUFFER_STATE testBuffer;
 
 	for(auto i=0; i < static_cast<int>(tStrlit.size());++i){
-		SECTION("Plain test for integer " + tStrlit[i]){
+		SECTION("Plain test for string " + tStrlit[i]){
 			testBuffer = yy_scan_string(tStrlit[i].c_str());
 			yy_switch_to_buffer(testBuffer);
 			REQUIRE(yylex() == STRINGLIT);
@@ -157,6 +157,24 @@ TEST_CASE("More integer tests","[tokens]") {
 			testBuffer = yy_scan_string(tInt[i].c_str());
 			yy_switch_to_buffer(testBuffer);
 			REQUIRE(yylex() == INTLIT);
+			yy_delete_buffer(testBuffer);
+		}
+	}
+
+}
+/*Makes sure everything in the list tId is an identifier
+*/
+TEST_CASE("More identifier tests","[tokens]") {
+
+	const std::vector<std::string>  tId = {"myid", "m2389478", "y___203940923_efljg_fjgnjk"};
+
+	YY_BUFFER_STATE testBuffer;
+
+	for(auto i=0; i < static_cast<int>(tId.size());++i){
+		SECTION("Plain test for identifier " + tId[i]){
+			testBuffer = yy_scan_string(tId[i].c_str());
+			yy_switch_to_buffer(testBuffer);
+			REQUIRE(yylex() == IDENTIFIER);
 			yy_delete_buffer(testBuffer);
 		}
 	}
