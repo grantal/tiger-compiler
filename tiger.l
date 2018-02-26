@@ -6,5 +6,5 @@
 %option nounistd
 
 %%
-"IF"	{return IF;}
+"array"	{return ARRAY;}
 %%
