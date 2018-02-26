@@ -205,6 +205,8 @@ TEST_CASE("make sure some strings throw errors","[tokens]") {
 }
 
 /* These next few tests will be reading from files
+All of these files are from:
+https://www.cs.princeton.edu/~appel/modern/testcases/
 */
 TEST_CASE("make sure real file test1.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test1.tig", "r");
@@ -241,6 +243,7 @@ TEST_CASE("make sure real file test1.tig works","[tokens]") {
 TEST_CASE("make sure real file test2.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test2.tig", "r");
     REQUIRE(yylex() == LET);
+    REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
     REQUIRE(yylex() == IDENTIFIER);
     REQUIRE(yylex() == EQUAL);
@@ -272,4 +275,53 @@ TEST_CASE("make sure real file test2.tig works","[tokens]") {
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
+    fclose(yyin);
+}
+
+TEST_CASE("make sure test3.tig works","[tokens]") {
+    yyin = fopen("tiger-programs/test3.tig", "r");
+    REQUIRE(yylex() == LET);
+    REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == TYPE);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == EQUAL);
+    REQUIRE(yylex() == LBRACE);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == COLON);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == COMMA);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == COLON);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == RBRACE);
+    REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == VAR);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == COLON);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ASSIGNMENT);
+    REQUIRE(yylex() == LBRACE);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == EQUAL);
+    REQUIRE(yylex() == STRINGLIT);
+    REQUIRE(yylex() == COMMA);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == EQUAL);
+    REQUIRE(yylex() == INTLIT);
+    REQUIRE(yylex() == RBRACE);
+    REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == IN);
+    REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == DOT);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ASSIGNMENT);
+    REQUIRE(yylex() == STRINGLIT);
+    REQUIRE(yylex() == SEMICOLON);
+    REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == END);
+    REQUIRE(yylex() == ENDL);
+    fclose(yyin);
 }
