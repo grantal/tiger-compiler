@@ -76,7 +76,7 @@ TEST_CASE("individual elements", "[tokens]") {
     }
     SECTION("greater"){
         yy_scan_buffer(">", 1);
-        REQUIRE(yylex() = GREATER);
+        REQUIRE(yylex() == GREATER);
     }
     SECTION("eless"){
         yy_scan_buffer("=<", 2);
@@ -84,7 +84,7 @@ TEST_CASE("individual elements", "[tokens]") {
     }
     SECTION("egreater"){
         yy_scan_buffer("=>", 2);
-        REQUIRE(yylex() = EGREATER);
+        REQUIRE(yylex() == EGREATER);
     }
     SECTION("and"){
         yy_scan_buffer("&", 1);
@@ -92,7 +92,7 @@ TEST_CASE("individual elements", "[tokens]") {
     }
     SECTION("or"){
         yy_scan_buffer("|", 1);
-        REQUIRE(yylex() = OR);
+        REQUIRE(yylex() == OR);
     }
     SECTION("assignment"){
         yy_scan_buffer(":=", 2);
@@ -100,10 +100,10 @@ TEST_CASE("individual elements", "[tokens]") {
     }
     SECTION("endl"){
         yy_scan_buffer("\n \r \r\n \n\r", 9);
-        REQUIRE(yylex() = ENDL);
-        REQUIRE(yylex() = ENDL);
-        REQUIRE(yylex() = ENDL);
-        REQUIRE(yylex() = ENDL);
+        REQUIRE(yylex() == ENDL);
+        REQUIRE(yylex() == ENDL);
+        REQUIRE(yylex() == ENDL);
+        REQUIRE(yylex() == ENDL);
     }
     SECTION("stringlit"){
         yy_scan_buffer("\"hi\"", 4);
