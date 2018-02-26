@@ -35,20 +35,6 @@ extern "C"{
 				  "break","nil","function",
 				  "var","type","import","primitive",
 				  "class","extends","methods","new",
-                                  "comma","colon","semicolon",
-                                  "lparen","rparen","lbracket","rbracket",
-                                  "lbrace","rbrace","dot","plus","minus","star",
-                                  "fslash","equal","notequal","less","greater",
-                                  "eless","egreater","and","or",
-                                  "assignment","endl","stringlit","intlit",
-                                  "identifier","error"};
-
-	const std::vector<std::string> tGarbage = {"array","if","then",
-				  "else","while","for","to",
-				  "do","let","in","end","of",
-				  "break","nil","function",
-				  "var","type","import","primitive",
-				  "class","extends","methods","new",
 				  ",",":",";",
                                   "(",")","[","]",
                                   "{","}",".","+","-","*",
@@ -56,6 +42,18 @@ extern "C"{
                                   "=>","=<","&","|"
 				  ":=","\r","\"foo\"","239",
                                   "id", "!err"};
+
+
+        const std::vector<std::string> tGarbage = {"array","if","then",
+                                  "else","while","for","to",
+                                  "do","let","in","end","of",
+                                  "break","nil","function",
+                                  "var","type","import","primitive",
+                                  "class","extends","methods","new",
+                                  ",",":",";","(",")","[","]",".","+",
+                                  "-","*","/","==","<>","<",">","=>","=<",
+                                  "=","\"foo\"","239"," ","\t","\n"};
+
 
 /*Loops through parallel arrays tStr and tEnm, feeding
 in a test string from tStr with the desired output at the same
