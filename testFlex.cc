@@ -93,3 +93,24 @@ TEST_CASE("Test Case for keywords with suffix garbage","[tokens]") {
 	}
 
 }
+
+
+
+/*Makes sure everything in the list tInt is an Integer literal
+*/
+TEST_CASE("More integer tests","[tokens]") {
+
+	const std::vector<std::string>  tInt = {"0","1","2","3","4","5","6","7","8","9"};
+
+	YY_BUFFER_STATE testBuffer;
+
+	for(auto i=0; i < static_cast<int>(tInt.size());++i){
+		SECTION("Plain test for integer " + tInt[i]){
+			testBuffer = yy_scan_string(tInt[i].c_str());
+			yy_switch_to_buffer(testBuffer);
+			REQUIRE(yylex() == INTLIT);
+			yy_delete_buffer(testBuffer);
+		}
+	}
+
+}
