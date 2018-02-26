@@ -115,6 +115,10 @@ TEST_CASE("More endline tests","[tokens]") {
 }
 
 /*Makes sure everything in the list tStrlit is a string literal
+First part of the list is ascii characters 32-126
+Then its newline characters
+Then its other supported escapes
+Then its a long string
 */
 TEST_CASE("More string literal tests","[tokens]") {
 
@@ -130,6 +134,7 @@ TEST_CASE("More string literal tests","[tokens]") {
                 "\"m\"","\"n\"","\"o\"","\"p\"","\"q\"","\"r\"","\"s\"","\"t\"","\"u\"",
                 "\"v\"","\"w\"","\"x\"","\"y\"","\"z\"","\"{\"","\"|\"","\"}\"","\"~\"",
                 "\"     \"","\"\\n\"","\"\\r\"","\"\\n\\r\"","\"\\r\\n\"",
+                "\"\\a\"", "\"\\b\"", "\"\\f\"", "\"\\t\"", "\"\\v\"",
                 "\"longer string of stuff\""};
 
 	YY_BUFFER_STATE testBuffer;
@@ -175,6 +180,24 @@ TEST_CASE("More identifier tests","[tokens]") {
 			testBuffer = yy_scan_string(tId[i].c_str());
 			yy_switch_to_buffer(testBuffer);
 			REQUIRE(yylex() == IDENTIFIER);
+			yy_delete_buffer(testBuffer);
+		}
+	}
+
+}
+/*Makes sure everything in the list tErr returns the ERROR token
+*/
+TEST_CASE("make sure some strings throw errors","[tokens]") {
+
+	const std::vector<std::string>  tErr = {"!"};
+
+	YY_BUFFER_STATE testBuffer;
+
+	for(auto i=0; i < static_cast<int>(tErr.size());++i){
+		SECTION("Plain test for identifier " + tErr[i]){
+			testBuffer = yy_scan_string(tErr[i].c_str());
+			yy_switch_to_buffer(testBuffer);
+			REQUIRE(yylex() == ERROR);
 			yy_delete_buffer(testBuffer);
 		}
 	}
