@@ -43,7 +43,7 @@ extern "C"{
 				  ":=","\r","\"foo\"","239",
                                   "id", "!err"};
 
-
+/*
         const std::vector<std::string> tGarbage = {"array","if","then",
                                   "else","while","for","to",
                                   "do","let","in","end","of",
@@ -53,7 +53,7 @@ extern "C"{
                                   ",",":",";","(",")","[","]",".","+",
                                   "-","*","/","==","<>","<",">","=>","=<",
                                   "=","\"foo\"","239"," ","\t","\n"};
-
+*/
 
 /*Loops through parallel arrays tStr and tEnm, feeding
 in a test string from tStr with the desired output at the same
@@ -72,11 +72,11 @@ TEST_CASE("Basic Test Case for Keywords","[tokens]") {
 	}
 
 }
-
 /*Similar to first test case, but for each key words I loop through
 a set of garbage strings that I append to the end of the keywords
 before inputing them to the lexer. This should simulate a fair portion
 of cases where a keyword is close to some other token*/
+/*
 TEST_CASE("Test Case for keywords with suffix garbage","[tokens]") {
 
 	YY_BUFFER_STATE testBuffer;
@@ -93,7 +93,7 @@ TEST_CASE("Test Case for keywords with suffix garbage","[tokens]") {
 	}
 
 }
-
+*/
 
 /*Makes sure everything in the list tEndl is an endline character
 */
