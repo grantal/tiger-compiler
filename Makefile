@@ -13,9 +13,6 @@ all: testFlex
 testFlex: lex.yy.o testFlex.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-testalex: lex.yy.o testAlex.o
-	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
-
 lex.yy.o: lex.yy.c
 	$(C) -c -o $@ $^
 
