@@ -77,6 +77,7 @@ TEST_CASE("Basic Test Case for Keywords","[tokens]") {
 a set of garbage strings that I append to the end of the keywords
 before inputing them to the lexer. This should simulate a fair portion
 of cases where a keyword is close to some other token*/
+/*
 TEST_CASE("Test Case for keywords with suffix garbage","[tokens]") {
 
 	YY_BUFFER_STATE testBuffer;
@@ -93,7 +94,7 @@ TEST_CASE("Test Case for keywords with suffix garbage","[tokens]") {
 	}
 
 }
-
+*/
 
 /*Makes sure everything in the list tEndl is an endline character
 */
