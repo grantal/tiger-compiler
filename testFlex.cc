@@ -6,10 +6,25 @@
 #include <string>
 #include "token.hh"
 
+// couldn't figure out how to get YY_BUFF_SIZE with extern, so I copied it's definition
+/* Size of default input buffer. */
+#ifndef YY_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k.
+ * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
+ * Ditto for the __ia64__ case accordingly.
+ */
+#define YY_BUF_SIZE 32768
+#else
+#define YY_BUF_SIZE 16384
+#endif /* __ia64__ */
+#endif
+
 extern "C"{
 	extern int yylex(void);
 	typedef struct yy_buffer_state* YY_BUFFER_STATE;
 	extern YY_BUFFER_STATE yy_scan_string(const char*);
+	extern YY_BUFFER_STATE yy_create_buffer(FILE* file, int size);
 	extern void yy_switch_to_buffer(YY_BUFFER_STATE);
 	extern void yy_delete_buffer(YY_BUFFER_STATE);
 	extern FILE* yyin;
@@ -210,6 +225,7 @@ https://www.cs.princeton.edu/~appel/modern/testcases/
 */
 TEST_CASE("make sure real file test1.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test1.tig", "r");
+    yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE )); 
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
@@ -242,6 +258,7 @@ TEST_CASE("make sure real file test1.tig works","[tokens]") {
 
 TEST_CASE("make sure real file test2.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test2.tig", "r");
+    yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE )); 
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
@@ -280,6 +297,7 @@ TEST_CASE("make sure real file test2.tig works","[tokens]") {
 
 TEST_CASE("make sure test3.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test3.tig", "r");
+    yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE )); 
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
