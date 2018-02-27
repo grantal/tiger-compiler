@@ -114,7 +114,7 @@ TEST_CASE("More endline tests","[tokens]") {
 	YY_BUFFER_STATE testBuffer;
 
 	for(auto i=0; i < static_cast<int>(tEndl.size());++i){
-		SECTION("Plain test for newline character " + tEndl[i]){
+		SECTION("Plain test for newline character index " + std::to_string(i)){
 			testBuffer = yy_scan_string(tEndl[i].c_str());
 			yy_switch_to_buffer(testBuffer);
 			REQUIRE(yylex() == ENDL);
