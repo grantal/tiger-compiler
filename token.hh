@@ -1,14 +1,52 @@
 //include: [comment token]?
-enum tigerTokens {ARRAY=257,IF,THEN,
-				ELSE,WHILE,FOR,TO,
-				DO,LET,IN,END,OF,
-				BREAK,NIL,FUNCTION,
-				VAR,TYPE,IMPORT,PRIMITIVE,
-				CLASS,EXTENDS,METHODS,NEW,
-				COMMA,COLON,SEMICOLON,
-				LPAREN,RPAREN,LBRACKET,RBRACKET,
-				LBRACE,RBRACE,DOT,PLUS,MINUS,STAR,
-				FSLASH,EQUAL,NOTEQUAL,LESS,GREATER,
-				ELESS,EGREATER,AND,OR,
-				ASSIGNMENT,ENDL,STRINGLIT,INTLIT,
-				IDENTIFIER,ERROR};
+enum tigerTokens {ARRAY=257,//257
+				IF,			//258
+				THEN,		//259
+				ELSE,		//260
+				WHILE,		//261
+				FOR,		//262
+				TO,			//263
+				DO,			//264
+				LET,		//265
+				IN,			//266
+				END,		//267
+				OF,			//268
+				BREAK,		//269
+				NIL,		//270
+				FUNCTION,	//271
+				VAR,		//272
+				TYPE,		//273
+				IMPORT,		//274
+				PRIMITIVE,	//275
+				CLASS,		//276
+				EXTENDS,	//277
+				METHODS,	//278
+				NEW,		//279
+				COMMA,		//280
+				COLON,		//281
+				SEMICOLON,	//282
+				LPAREN,		//283
+				RPAREN,		//284
+				LBRACKET,	//285
+				RBRACKET,	//286
+				LBRACE,		//287
+				RBRACE,		//288
+				DOT,		//289
+				PLUS,		//290
+				MINUS,		//291
+				STAR,		//292
+				FSLASH,		//293
+				EQUAL,		//294
+				NOTEQUAL,	//295
+				LESS,		//296
+				GREATER,	//297
+				ELESS,		//298
+				EGREATER,	//299
+				AND,		//300
+				OR,			//301
+				ASSIGNMENT,	//302
+				ENDL,		//303
+				STRINGLIT,	//304
+				INTLIT,		//305
+				IDENTIFIER,	//306
+				ERROR};		//307

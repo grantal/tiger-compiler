@@ -5,11 +5,13 @@
 #include <vector>
 #include <string>
 #include "token.hh"
+#define YY_BUF_SIZE 16384
 
 extern "C"{
 	extern int yylex(void);
 	typedef struct yy_buffer_state* YY_BUFFER_STATE;
 	extern YY_BUFFER_STATE yy_scan_string(const char*);
+    extern YY_BUFFER_STATE yy_create_buffer(FILE*,int);
 	extern void yy_switch_to_buffer(YY_BUFFER_STATE);
 	extern void yy_delete_buffer(YY_BUFFER_STATE);
 	extern FILE* yyin;
@@ -211,6 +213,8 @@ https://www.cs.princeton.edu/~appel/modern/testcases/
 */
 TEST_CASE("make sure real file test1.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test1.tig", "r");
+    YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
+    yy_switch_to_buffer(testBuffer);
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
@@ -238,11 +242,14 @@ TEST_CASE("make sure real file test1.tig works","[tokens]") {
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
+    yy_delete_buffer(testBuffer);
     fclose(yyin);
 }
 
 TEST_CASE("make sure real file test2.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test2.tig", "r");
+    YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
+    yy_switch_to_buffer(testBuffer);
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
@@ -276,11 +283,14 @@ TEST_CASE("make sure real file test2.tig works","[tokens]") {
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
+    yy_delete_buffer(testBuffer);
     fclose(yyin);
 }
 
 TEST_CASE("make sure test3.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test3.tig", "r");
+    YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
+    yy_switch_to_buffer(testBuffer);
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
@@ -324,5 +334,25 @@ TEST_CASE("make sure test3.tig works","[tokens]") {
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
+    yy_delete_buffer(testBuffer);
     fclose(yyin);
+}
+
+TEST_CASE("make sure commentTest.tig works","[tokens]") {
+    SECTION("Test with a file of just comments"){
+        yyin = fopen("tiger-programs/commentTest.tig", "r");
+        YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
+        yy_switch_to_buffer(testBuffer);
+        REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
+        yy_delete_buffer(testBuffer);
+        fclose(yyin);
+    }
+    SECTION("Test with a file of comments and an array keywords"){
+        yyin = fopen("tiger-programs/commentTest_ARRAY.tig", "r");
+        YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
+        yy_switch_to_buffer(testBuffer);
+        REQUIRE(yylex() == ARRAY);
+        yy_delete_buffer(testBuffer);
+        fclose(yyin);
+    }
 }
