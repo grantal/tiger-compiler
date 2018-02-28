@@ -5,14 +5,13 @@
 #include <vector>
 #include <string>
 #include "token.hh"
-#define YY_BUF_SIZE 16384
 
 // couldn't figure out how to get YY_BUFF_SIZE with extern so I put this block in
 // YY_BUF_SIZE should never be defined in this file and if it is, then lex.yy.c isn't loaded
 // and the 'extern "C"' block will fail.
 // this just prevents the compiler from getting mad at me for YY_BUF_SIZE being undefined
 #ifndef YY_BUF_SIZE
-#define YY_BUF_SIZE 32768
+#define YY_BUF_SIZE 16384
 #endif
 
 
