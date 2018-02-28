@@ -70,8 +70,7 @@ new					{return NEW;}
 & 					{return AND;}
 \|					{return OR;}
 :=					{return ASSIGNMENT;}
-\\n\\r|\\r\\n		{return ENDL;}
-\\n|\\r 			{return ENDL;}
+(\n\r|\r|\n)			{return ENDL;}
 [A-Za-z][A-Za-z0-9_]*|_main     {return IDENTIFIER;}
 [A-Za-z0-9_]*       {return ERROR;}
 %%

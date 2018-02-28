@@ -40,8 +40,8 @@ extern "C"{
 				  ",",":",";",
                                   "(",")","[","]",
                                   "{","}",".","+","-","*",
-                                  "/","==","<>","<",">",
-                                  "=>","=<","&","|"
+                                  "/","=","<>","<",">",
+                                  ">=",">=","&","|"
 				  ":=","\r","\"foo\"","239",
                                   "id", "!err"};
 
@@ -215,6 +215,7 @@ TEST_CASE("make sure real file test1.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test1.tig", "r");
     YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
     yy_switch_to_buffer(testBuffer);
+    REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
@@ -250,6 +251,7 @@ TEST_CASE("make sure real file test2.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test2.tig", "r");
     YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
     yy_switch_to_buffer(testBuffer);
+    REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
@@ -291,6 +293,7 @@ TEST_CASE("make sure test3.tig works","[tokens]") {
     yyin = fopen("tiger-programs/test3.tig", "r");
     YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
     yy_switch_to_buffer(testBuffer);
+    REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
@@ -311,6 +314,7 @@ TEST_CASE("make sure test3.tig works","[tokens]") {
     REQUIRE(yylex() == COLON);
     REQUIRE(yylex() == IDENTIFIER);
     REQUIRE(yylex() == ASSIGNMENT);
+    REQUIRE(yylex() == IDENTIFIER);
     REQUIRE(yylex() == LBRACE);
     REQUIRE(yylex() == IDENTIFIER);
     REQUIRE(yylex() == EQUAL);
@@ -343,6 +347,8 @@ TEST_CASE("make sure commentTest.tig works","[tokens]") {
         yyin = fopen("tiger-programs/commentTest.tig", "r");
         YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
         yy_switch_to_buffer(testBuffer);
+        REQUIRE(yylex() == ENDL);
+        REQUIRE(yylex() == ENDL);
         REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
         yy_delete_buffer(testBuffer);
         fclose(yyin);
@@ -351,6 +357,9 @@ TEST_CASE("make sure commentTest.tig works","[tokens]") {
         yyin = fopen("tiger-programs/commentTest_ARRAY.tig", "r");
         YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
         yy_switch_to_buffer(testBuffer);
+        REQUIRE(yylex() == ENDL);
+        REQUIRE(yylex() == ENDL);
+        REQUIRE(yylex() == ENDL);
         REQUIRE(yylex() == ARRAY);
         yy_delete_buffer(testBuffer);
         fclose(yyin);
