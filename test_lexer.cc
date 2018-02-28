@@ -201,7 +201,8 @@ TEST_CASE("make sure some strings throw errors","[tokens]") {
 
 	const std::vector<std::string>  tErr = {"!", "_man", "_mayn", "_anythingelse",
         /* bad string escapes */                "\"\\c\"", "\"\\d\"", "\"\\e\"", "\"\\g\"", "\"\\z\"",
-                                                "\"\\x\"", "\"\\y\"", "\"\\i\"", "\"\\h\"", "\"\\\""};
+                                                "\"\\x\"", "\"\\y\"", "\"\\i\"", "\"\\h\"", "\"\\\"",
+                                                "\"", "\"whoopsie I forgot to terminate my string"};
 
 	YY_BUFFER_STATE testBuffer;
 
