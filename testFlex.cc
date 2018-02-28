@@ -41,7 +41,7 @@ extern "C"{
                                   "(",")","[","]",
                                   "{","}",".","+","-","*",
                                   "/","=","<>","<",">",
-                                  ">=",">=","&","|"
+                                  "<=",">=","&","|",
 				  ":=","\r","\"foo\"","239",
                                   "id", "!err"};
 
@@ -65,7 +65,7 @@ TEST_CASE("Basic Test Case for Keywords","[tokens]") {
 	YY_BUFFER_STATE testBuffer;
 
 	for(auto i=0; i < static_cast<int>(tStr.size());++i){
-		SECTION("Plain test for enum #" + std::to_string(i)){
+		SECTION("Plain test for enum #" + std::to_string(i) + " and input " + tStr[i]){
 			testBuffer = yy_scan_string(tStr[i].c_str());
 			yy_switch_to_buffer(testBuffer);
 			REQUIRE(yylex() == tEnm[i]);
