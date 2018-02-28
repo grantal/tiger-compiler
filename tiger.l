@@ -20,8 +20,7 @@
 							BEGIN(commentState);
 						}
 					}	
-<commentState>\\n|\\r 			{}
-<commentState>.	{}
+<commentState>.		{}
 (\")(.)*(\")		{return STRINGLIT;}
 [0-9]+				{return INTLIT;}
 array				{return ARRAY;}
