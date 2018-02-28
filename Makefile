@@ -26,4 +26,4 @@ test: all
 	./testlexer
 
 clean:
-	rm -f *.o testlexer lex.yy.c
+	rm -f *.o *.gch testlexer lex.yy.c
