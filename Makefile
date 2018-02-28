@@ -8,9 +8,9 @@ CXXFLAGS=-g -Og -std=c++17 -Wall -pedantic -Wextra -Werror
 LDFLAGS=$(CXXFLAGS)
 LIBS=-lfl
 
-all: testFlex
+all: testlexer
 
-testFlex: lex.yy.o testFlex.o
+testlexer: lex.yy.o test_lexer.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 lex.yy.o: lex.yy.c
@@ -23,7 +23,7 @@ lex.yy.c: tiger.l
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
 test: all
-	./testFlex
+	./testlexer
 
 clean:
-	rm -f *.o testFlex lex.yy.c
+	rm -f *.o *.gch testlexer lex.yy.c

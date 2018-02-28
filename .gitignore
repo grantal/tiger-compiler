@@ -1,3 +1,9 @@
+# files with no extensions (usually executables)
+*
+!/**/
+!*.*
+!Makefile
+
 # Prerequisites
 *.d
 
@@ -30,3 +36,8 @@
 *.exe
 *.out
 *.app
+
+lex.yy.c
+
+# vim swap files
+.*.swp
