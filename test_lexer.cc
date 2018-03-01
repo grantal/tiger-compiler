@@ -253,6 +253,7 @@ TEST_CASE("make sure real file test1.tig works","[tokens]") {
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
     yy_delete_buffer(testBuffer);
     fclose(yyin);
 }
@@ -295,6 +296,7 @@ TEST_CASE("make sure real file test2.tig works","[tokens]") {
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
     yy_delete_buffer(testBuffer);
     fclose(yyin);
 }
@@ -348,6 +350,7 @@ TEST_CASE("make sure test3.tig works","[tokens]") {
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
     yy_delete_buffer(testBuffer);
     fclose(yyin);
 }
@@ -372,6 +375,7 @@ TEST_CASE("make sure commentTest.tig works","[tokens]") {
         REQUIRE(yylex() == ENDL);
         REQUIRE(yylex() == ENDL);
         REQUIRE(yylex() == ARRAY);
+        REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
         yy_delete_buffer(testBuffer);
         fclose(yyin);
     }
