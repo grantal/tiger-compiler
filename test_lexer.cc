@@ -380,3 +380,12 @@ TEST_CASE("make sure commentTest.tig works","[tokens]") {
         fclose(yyin);
     }
 }
+TEST_CASE("make sure newline in string errors","[tokens]") {
+    yyin = fopen("tiger-programs/newline_in_string.tig", "r");
+    YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
+    yy_switch_to_buffer(testBuffer);
+    REQUIRE(yylex() == ERROR);
+    //REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
+    yy_delete_buffer(testBuffer);
+    fclose(yyin);
+}

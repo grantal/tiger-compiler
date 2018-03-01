@@ -21,7 +21,7 @@
 				 }
 				}	
 <commentState>.|\n|\r		{}
-\"((\\[abfnrtv\\\"])|[^\\\"])*\" {return STRINGLIT;} 
+\"((\\[abfnrtv\\\"])|[^\\\"\n\r])*\" {return STRINGLIT;} 
 [0-9]+				{return INTLIT;}
 array				{return ARRAY;}
 if 				{return IF;}
