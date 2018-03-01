@@ -20,7 +20,7 @@
 				    BEGIN(commentState);
 				 }
 				}	
-<commentState>.		        {}
+<commentState>.|\n|\r		{}
 \"((\\[abfnrtv\\\"])|[^\\\"])*\" {return STRINGLIT;} 
 [0-9]+				{return INTLIT;}
 array				{return ARRAY;}
