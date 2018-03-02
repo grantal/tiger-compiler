@@ -21,7 +21,7 @@
 				 }
 				}	
 <commentState>.|\n|\r		{}
-\"((\\[abfnrtv\\\"])|[^\\\"\n\r])*\" {return STRINGLIT;} 
+\"(\\[abfnrtv\\\"]|\\x[0-9A-Fa-f]{2}|\\[0-3][0-7]{2}|[^\\\"\n\r])*\" {return STRINGLIT;} 
 [0-9]+				{return INTLIT;}
 array				{return ARRAY;}
 if 				{return IF;}
@@ -69,7 +69,7 @@ new				{return NEW;}
 & 				{return AND;}
 \|				{return OR;}
 :=				{return ASSIGNMENT;}
-(\n\r|\r|\n)			{return ENDL;}
+\n\r|\r\n|\r|\n			{return ENDL;}
 [a-zA-Z][A-Za-z0-9_]*|_main     {return IDENTIFIER;}
 [ \t]*                          {}
 .                               {return ERROR;}
