@@ -118,6 +118,7 @@ TEST_CASE("More endline tests","[tokens]") {
 			testBuffer = yy_scan_string(tEndl[i].c_str());
 			yy_switch_to_buffer(testBuffer);
 			REQUIRE(yylex() == ENDL);
+			REQUIRE(yylex() == 0);
 			yy_delete_buffer(testBuffer);
 		}
 	}
@@ -145,6 +146,8 @@ TEST_CASE("More string literal tests","[tokens]") {
                 "\"v\"","\"w\"","\"x\"","\"y\"","\"z\"","\"{\"","\"|\"","\"}\"","\"~\"",
                 "\"     \"","\"\\n\"","\"\\r\"","\"\\n\\r\"","\"\\r\\n\"",
                 "\"\\a\"", "\"\\b\"", "\"\\f\"", "\"\\t\"", "\"\\v\"",
+                "\"\\x0a\"", "\"\\x1f\"", "\"\\x6e\"", "\"\\b3\"", "\"\\xc4\"",
+                "\"\\377\"", "\"\\001\"", "\"\\000\"", "\"\\040\"", "\"\\225\"",
                 "\"longer string of stuff\"", "\"blahalal\\a\"", "\"\\ajdfnjdfj\""};
 
 	YY_BUFFER_STATE testBuffer;
@@ -202,6 +205,8 @@ TEST_CASE("make sure some strings throw errors","[tokens]") {
 	const std::vector<std::string>  tErr = {"!", "_man", "_mayn", "_anythingelse",
         /* bad string escapes */                "\"\\c\"", "\"\\d\"", "\"\\e\"", "\"\\g\"", "\"\\z\"",
                                                 "\"\\x\"", "\"\\y\"", "\"\\i\"", "\"\\h\"", "\"\\\"",
+                                                "\"\\x0\"", "\"\\xd\"", "\"\\x0h\"", "\"\\xg2\"",
+                                                "\"\\378\"", "\"\\400\"", "\"\\008\"", "\"\\099\"",
                                                 "\"", "\"whoopsie I forgot to terminate my string"};
 
 	YY_BUFFER_STATE testBuffer;
@@ -253,6 +258,7 @@ TEST_CASE("make sure real file test1.tig works","[tokens]") {
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
     yy_delete_buffer(testBuffer);
     fclose(yyin);
 }
@@ -295,6 +301,7 @@ TEST_CASE("make sure real file test2.tig works","[tokens]") {
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
     yy_delete_buffer(testBuffer);
     fclose(yyin);
 }
@@ -348,6 +355,7 @@ TEST_CASE("make sure test3.tig works","[tokens]") {
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
+    REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
     yy_delete_buffer(testBuffer);
     fclose(yyin);
 }
@@ -357,6 +365,7 @@ TEST_CASE("make sure commentTest.tig works","[tokens]") {
         yyin = fopen("tiger-programs/commentTest.tig", "r");
         YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
         yy_switch_to_buffer(testBuffer);
+        REQUIRE(yylex() == ENDL);
         REQUIRE(yylex() == ENDL);
         REQUIRE(yylex() == ENDL);
         REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
@@ -371,7 +380,17 @@ TEST_CASE("make sure commentTest.tig works","[tokens]") {
         REQUIRE(yylex() == ENDL);
         REQUIRE(yylex() == ENDL);
         REQUIRE(yylex() == ARRAY);
+        REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
         yy_delete_buffer(testBuffer);
         fclose(yyin);
     }
+}
+TEST_CASE("make sure newline in string errors","[tokens]") {
+    yyin = fopen("tiger-programs/newline_in_string.tig", "r");
+    YY_BUFFER_STATE testBuffer = yy_create_buffer(yyin,YY_BUF_SIZE);
+    yy_switch_to_buffer(testBuffer);
+    REQUIRE(yylex() == ERROR);
+    //REQUIRE(yylex() == 0); //yylex()outputs 0 when nothing lexed
+    yy_delete_buffer(testBuffer);
+    fclose(yyin);
 }
