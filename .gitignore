@@ -41,3 +41,6 @@ lex.yy.c
 
 # vim swap files
 .*.swp
+
+# bison files
+*.tab.*
