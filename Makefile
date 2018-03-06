@@ -8,7 +8,7 @@ CXXFLAGS=-g -Og -std=c++17 -Wall -pedantic -Wextra -Werror
 LDFLAGS=$(CXXFLAGS)
 LIBS=-lfl
 
-all: testlexer
+all: testlexer testparser
 
 testlexer: lex.yy.o test_lexer.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
@@ -31,10 +31,8 @@ tiger.tab.%: tiger.y
 %.o.cc: %.cc %.hh
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
-    
-
 test: all
-	./testlexer
+	./testlexer && ./testparser
 
 clean:
 	rm -f *.o *.gch testlexer lex.yy.c tiger.tab.h tiger.tab.c
