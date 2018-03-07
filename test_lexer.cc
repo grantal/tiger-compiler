@@ -15,43 +15,41 @@
 #endif
 
 
-extern "C"{
-	extern int yylex(void);
-	typedef struct yy_buffer_state* YY_BUFFER_STATE;
-	extern YY_BUFFER_STATE yy_scan_string(const char*);
-        extern YY_BUFFER_STATE yy_create_buffer(FILE*,int);
-	extern void yy_switch_to_buffer(YY_BUFFER_STATE);
-	extern void yy_delete_buffer(YY_BUFFER_STATE);
-	extern FILE* yyin;
-}
+extern int yylex(void);
+typedef struct yy_buffer_state* YY_BUFFER_STATE;
+extern YY_BUFFER_STATE yy_scan_string(const char*);
+extern YY_BUFFER_STATE yy_create_buffer(FILE*,int);
+extern void yy_switch_to_buffer(YY_BUFFER_STATE);
+extern void yy_delete_buffer(YY_BUFFER_STATE);
+extern FILE* yyin;
 
-	const std::vector<int> tEnm = {ARRAY,IF,THEN,
-					ELSE,WHILE,FOR,TO,
-					DO,LET,IN,END,OF,
-					BREAK,NIL,FUNCTION,
-					VAR,TYPE,IMPORT,PRIMITIVE,
-					CLASS,EXTENDS,METHODS,NEW,
-                                        COMMA,COLON,SEMICOLON,
-                                        LPAREN,RPAREN,LBRACKET,RBRACKET,
-                                        LBRACE,RBRACE,DOT,PLUS,MINUS,STAR,
-                                        FSLASH,EQUAL,NOTEQUAL,LESS,GREATER,
-                                        ELESS,EGREATER,AND,OR,
-                                        ASSIGNMENT,ENDL,STRINGLIT,INTLIT,
-                                        IDENTIFIER,ERROR};
+const std::vector<int> tEnm = {ARRAY,IF,THEN,
+                                ELSE,WHILE,FOR,TO,
+                                DO,LET,IN,END,OF,
+                                BREAK,NIL,FUNCTION,
+                                VAR,TYPE,IMPORT,PRIMITIVE,
+                                CLASS,EXTENDS,METHODS,NEW,
+                                COMMA,COLON,SEMICOLON,
+                                LPAREN,RPAREN,LBRACKET,RBRACKET,
+                                LBRACE,RBRACE,DOT,PLUS,MINUS,STAR,
+                                FSLASH,EQUAL,NOTEQUAL,LESS,GREATER,
+                                ELESS,EGREATER,AND,OR,
+                                ASSIGNMENT,ENDL,STRINGLIT,INTLIT,
+                                IDENTIFIER,ERROR};
 
-	const std::vector<std::string>  tStr = {"array","if","then",
-				  "else","while","for","to",
-				  "do","let","in","end","of",
-				  "break","nil","function",
-				  "var","type","import","primitive",
-				  "class","extends","methods","new",
-				  ",",":",";",
-                                  "(",")","[","]",
-                                  "{","}",".","+","-","*",
-                                  "/","=","<>","<",">",
-                                  "<=",">=","&","|",
-				  ":=","\r","\"foo\"","239",
-                                  "id", "!err"};
+const std::vector<std::string>  tStr = {"array","if","then",
+                          "else","while","for","to",
+                          "do","let","in","end","of",
+                          "break","nil","function",
+                          "var","type","import","primitive",
+                          "class","extends","methods","new",
+                          ",",":",";",
+                          "(",")","[","]",
+                          "{","}",".","+","-","*",
+                          "/","=","<>","<",">",
+                          "<=",">=","&","|",
+                          ":=","\r","\"foo\"","239",
+                          "id", "!err"};
 
 /*
         const std::vector<std::string> tGarbage = {"array","if","then",
