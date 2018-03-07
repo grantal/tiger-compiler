@@ -1,9 +1,9 @@
 %{
-#include <stdio.h>
+#include <iostream>
 
 int yylex();
 void yyerror (char const *s) {
-   fprintf (stderr, "%s\n", s);
+   std::cerr << s << std::endl;
 }
 %}
 %token ENDL VAR
