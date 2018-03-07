@@ -1,5 +1,10 @@
 %{
-#include <stdio.h>
+#include <iostream>
+
+int yylex();
+void yyerror (char const *s) {
+   std::cerr << s << std::endl;
+}
 %}
 %token ENDL VAR
 
@@ -12,6 +17,3 @@ decs:
 dec: VAR
 ; 
 %%
-void yyerror (char const *s) {
-   fprintf (stderr, "%s\n", s);
-}

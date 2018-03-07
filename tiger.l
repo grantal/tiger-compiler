@@ -1,5 +1,6 @@
 %{
 	#include "token.hh"
+	#include <unistd.h>
 	int commentDepth = 0;
 %}
 
