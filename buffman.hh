@@ -23,7 +23,7 @@ private:
     YY_BUFFER_STATE buff_;
     FILE* f_;
 public:
-    Buffman(std::string s) :buff_{} {
+    Buffman(std::string s) :buff_{}, f_{nullptr} {
         buff_ = yy_scan_string(s.c_str());
         yy_switch_to_buffer(buff_);
     }
@@ -33,7 +33,9 @@ public:
     }
     ~Buffman() {
         yy_delete_buffer(buff_);
-        //fclose(f_);
+        if(f_) {
+            fclose(f_);
+        }
     }
 }; 
 

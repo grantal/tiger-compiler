@@ -10,10 +10,16 @@
 extern int yylex(void);
 extern FILE* yyin;
 
-TEST_CASE("Buffman tests","[buffman]") {
-    SECTION("string constructor test") {
+TEST_CASE("Buffman lexing tests","[buffman]") {
+    SECTION("buffman string constructor works") {
         auto b = Buffman("if");
         REQUIRE(yylex() == IF);
+    }
+    SECTION("buffman file constructor works") {
+        yyin = fopen("tiger-programs/test2.tig", "r");
+        auto b = Buffman(yyin);
+        REQUIRE(yylex() == ENDL);
+        REQUIRE(yylex() == LET);
     }
 }
 
