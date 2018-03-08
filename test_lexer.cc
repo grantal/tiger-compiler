@@ -5,23 +5,17 @@
 #include <vector>
 #include <string>
 #include "token.hh"
-
-// couldn't figure out how to get YY_BUFF_SIZE with extern so I put this block in
-// YY_BUF_SIZE should never be defined in this file and if it is, then lex.yy.c isn't loaded
-// and the 'extern "C"' block will fail.
-// this just prevents the compiler from getting mad at me for YY_BUF_SIZE being undefined
-#ifndef YY_BUF_SIZE
-#define YY_BUF_SIZE 16384
-#endif
-
+#include "buffman.hh"
 
 extern int yylex(void);
-typedef struct yy_buffer_state* YY_BUFFER_STATE;
-extern YY_BUFFER_STATE yy_scan_string(const char*);
-extern YY_BUFFER_STATE yy_create_buffer(FILE*,int);
-extern void yy_switch_to_buffer(YY_BUFFER_STATE);
-extern void yy_delete_buffer(YY_BUFFER_STATE);
 extern FILE* yyin;
+
+TEST_CASE("Buffman tests","[buffman]") {
+    SECTION("string constructor test") {
+        auto b = Buffman("if");
+        REQUIRE(yylex() == IF);
+    }
+}
 
 const std::vector<int> tEnm = {ARRAY,IF,THEN,
                                 ELSE,WHILE,FOR,TO,
