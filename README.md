@@ -1,5 +1,9 @@
 # tiger-compiler
 
+This is a compiler for the [tiger language](https://www.cs.princeton.edu/~appel/modern/) in C and C++. We use flex and bison. Written by Alex Grant and Matt Atteberry.
+
+## Lexer Notes
+
 ### comments
 Whenever we see a `/*` we enter a 'comment mode' state. No tokens are returned in comment mode. Whenever we see a `/*`, we increment a counter. Whenever we see a `*/`, we decrement it. When the counter hits zero, we exit comment mode to the INITIAL state
 ### strings
