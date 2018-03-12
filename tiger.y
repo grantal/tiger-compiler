@@ -9,6 +9,14 @@ void yyerror (char const *s) {
 %token ENDL TYPE ID ARRAY OF VAR ASSIGNMENT FUNCTION
 %token NIL INTLIT STRINGLIT NEW
 
+/* precedence rules */
+%left op
+%left '|'
+%left '&'
+%left '<' '>' '=' "<>" "<=" ">="
+%left '+' '-'
+%left '*' '/'
+
 %%
 decs: 
  | dec
@@ -53,11 +61,19 @@ explist: exp
  | exp ',' explist
 ;
 
+/* exps separated by semicolons */
+exps: 
+ | exps_
+
+/* can't be empty string */
+exps_: exp
+ | exp ';' exps_
+
 exp: NIL
  | INTLIT
  | STRINGLIT
 /* array and record creation */
- | typeId '[' exp ']' OF exp
+/* | typeId '[' exp ']' OF exp */
  | typeId '{' '}'
  | typeId '{' recs '}'
 /* Objects creation */
@@ -67,6 +83,24 @@ exp: NIL
 /* function call */
  | ID '(' ')'
  | ID '(' explist ')'
+/* method call */
+ | lvalue '.' ID '(' ')'
+ | lvalue '.' ID '(' explist ')'
+/* Operations */
+ | '-' exp
+ | exp '+' exp
+ | exp '-' exp
+ | exp '*' exp
+ | exp '/' exp
+ | exp '=' exp
+ | exp "<>" exp
+ | exp '>' exp
+ | exp '<' exp
+ | exp ">=" exp
+ | exp "<=" exp
+ | exp '&' exp
+ | exp '|' exp
+ | '(' exps ')'
 ;
 
 lvalue: ID
