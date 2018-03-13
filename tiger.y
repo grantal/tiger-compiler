@@ -69,11 +69,16 @@ exps:
 exps_: exp
  | exp ';' exps_
 
-exp: NIL
+/* helper for array creation and indexing */
+arry: ID '[' exp ']'
+
+exp: exp_
+ | arry OF exp_
+
+exp_: NIL
  | INTLIT
  | STRINGLIT
 /* array and record creation */
-/* | typeId '[' exp ']' OF exp */
  | typeId '{' '}'
  | typeId '{' recs '}'
 /* Objects creation */
@@ -87,24 +92,25 @@ exp: NIL
  | lvalue '.' ID '(' ')'
  | lvalue '.' ID '(' explist ')'
 /* Operations */
- | '-' exp
- | exp '+' exp
- | exp '-' exp
- | exp '*' exp
- | exp '/' exp
- | exp '=' exp
- | exp "<>" exp
- | exp '>' exp
- | exp '<' exp
- | exp ">=" exp
- | exp "<=" exp
- | exp '&' exp
- | exp '|' exp
+ | '-' exp_
+ | exp_ '+' exp_
+ | exp_ '-' exp_
+ | exp_ '*' exp_
+ | exp_ '/' exp_
+ | exp_ '=' exp_
+ | exp_ "<>" exp_
+ | exp_ '>' exp_
+ | exp_ '<' exp_
+ | exp_ ">=" exp_
+ | exp_ "<=" exp_
+ | exp_ '&' exp_
+ | exp_ '|' exp_
  | '(' exps ')'
 ;
 
 lvalue: ID
  | lvalue '.' ID
- | lvalue '[' exp ']'
+ | arry
+ | lvalue '.' arry
 ;
 %%
