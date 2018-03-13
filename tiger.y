@@ -1,13 +1,24 @@
 %{
 #include <iostream>
+#include "ast.hh"
 
 int yylex();
 void yyerror (char const *s) {
    std::cerr << s << std::endl;
 }
+
+using namespace tiger;
+
 %}
-%token ENDL TYPE ID ARRAY OF VAR ASSIGNMENT FUNCTION
-%token NIL INTLIT STRINGLIT NEW
+
+%union {
+  tiger::ASTNode::ASTptr node;
+}
+
+%token TYPE NEW ARRAY OF VAR ASSIGNMENT FUNCTION
+%token ENDL
+%token NIL INTLIT STRINGLIT ID
+%type<node> exp_
 
 /* precedence rules */
 %left op
@@ -75,8 +86,8 @@ arry: ID '[' exp ']'
 exp: exp_
  | arry OF exp_
 
-exp_: NIL
- | INTLIT
+exp_: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
+ | INTLIT                       {}
  | STRINGLIT
 /* array and record creation */
  | typeId '{' '}'

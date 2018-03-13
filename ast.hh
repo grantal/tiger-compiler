@@ -7,6 +7,7 @@
 /*
  * Declarations for a calculator fb3-1
  */
+#pragma once
 
 #include <functional>
 #include <string>
@@ -25,7 +26,6 @@ namespace tiger {
 class ASTNode {
  public:
   using token_t = int;  // our token enum evaluates to int
-  using char_t = char;
   using string_t = std::string; // for nodes defined by strings, ">=", "<>" etc
   using ASTptr = const ASTNode*; // Can't use smart ptr in union :(
 
@@ -51,6 +51,23 @@ class TokenASTNode : public ASTNode {
   }
  private:
   const token_t token_;
+  const string_t value_;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// class for tokens like <, <=, [, ], <>, etc. just stores their literal value
+class StringASTNode : public ASTNode {
+ public:
+  StringASTNode(string_t value)
+   : ASTNode(), value_(value)
+  {}
+  virtual ~StringASTNode() = default;
+
+  virtual string_t toStr() const
+  {
+    return value_;
+  }
+ private:
   const string_t value_;
 };
 
