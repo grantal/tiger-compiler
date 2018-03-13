@@ -10,6 +10,8 @@
 
 #include <functional>
 #include <string>
+#include <algorithm>
+#include <vector>
 #include <cmath>
 
 
@@ -50,6 +52,29 @@ class TokenASTNode : public ASTNode {
  private:
   const token_t token_;
   const string_t value_;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Stores a vector of its children and a string describing what it does 
+// So you may have a node with desc of "typeId" and a single child thats a token
+// Node with token "ID"
+class ParentASTNode : public ASTNode {
+ public:
+  ParentASTNode(string_t desc, std::vector<ASTptr> children)
+   : ASTNode(), desc_(desc), children_(children)
+  {}
+  virtual ~ParentASTNode()
+  {
+    std::for_each(children_.begin(), children_.end(), [](ASTptr c){ delete c;}); 
+  };
+
+  virtual string_t toStr() const
+  {
+    return desc_ + ":\n";
+  }
+ private:
+  const string_t desc_;
+  const std::vector<ASTptr> children_;
 };
 
 } // namespace
