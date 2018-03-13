@@ -70,8 +70,18 @@ class ParentASTNode : public ASTNode {
 
   virtual string_t toStr() const
   {
-    return desc_ + ":\n";
+    std::string retStr = desc_ + " {\n";
+    std::for_each(children_.begin(), children_.end(), [&retStr](ASTptr c){
+        retStr += "\t" + c->toStr() + "\n";
+    }); 
+    return retStr + "}";
   }
+    
+  virtual string_t getDesc() const
+  {
+    return desc_;
+  }
+
  private:
   const string_t desc_;
   const std::vector<ASTptr> children_;
