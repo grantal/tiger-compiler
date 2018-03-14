@@ -1,4 +1,5 @@
 %{
+        #include "ast.hh" 
 	#include "tiger.tab.h"
 	#include <unistd.h>
 	int commentDepth = 0;
@@ -45,7 +46,7 @@ import				{return IMPORT;}
 primitive			{return PRIMITIVE;}
 class				{return CLASS;}
 extends				{return EXTENDS;}
-methods				{return METHODS;}
+method				{return METHOD;}
 new				{return NEW;}
 ,  | 				
 :  |     			
@@ -61,17 +62,18 @@ new				{return NEW;}
 -  |     			
 \* |     			
 \/ |     			
-=                               {return yytext[0];}      			
+=  |
+\< |
+\> |
+&  |
+\|                              {return yytext[0];}      			
 \<\>				{return NOTEQUAL;}
-\<				{return LESS;}
-\>				{return GREATER;}
 \<=				{return ELESS;}
 \>= 				{return EGREATER;}
-& 				{return AND;}
-\|				{return OR;}
 :=				{return ASSIGNMENT;}
 \n\r|\r\n|\r|\n			{return ENDL;}
 [a-zA-Z][A-Za-z0-9_]*|_main     {return ID;}
 [ \t]*                          {}
+\000                            {return ENDF;}
 .                               {return ERROR;}
 %%

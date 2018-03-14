@@ -27,14 +27,14 @@ using namespace tiger;
 %token NIL INTLIT STRINGLIT NEW
 %token IF THEN ELSE WHILE FOR TO DO LET IN END BREAK
 %token CLASS EXTENDS PRIMITIVE IMPORT METHOD
-%token ERROR ENDF
+%token ERROR ENDF NOTEQUAL ELESS EGREATER
 
 /* precedence rules (Added Assingnment op) */
 %left op
 %left ASSIGNMENT
 %left '|'
 %left '&'
-%left '<' '>' '=' "<>" "<=" ">="
+%left '<' '>' '=' NOTEQUAL ELESS EGREATER
 %left '+' '-'
 %left '*' '/'
 
@@ -75,11 +75,11 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | exp '*' exp
  | exp '/' exp
  | exp '=' exp
- | exp "<>" exp
+ | exp NOTEQUAL exp
  | exp '>' exp
  | exp '<' exp
- | exp ">=" exp
- | exp "<=" exp
+ | exp EGREATER exp
+ | exp ELESS exp
  | exp '&' exp
  | exp '|' exp
  | '(' exps ')'
