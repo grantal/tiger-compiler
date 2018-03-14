@@ -17,7 +17,7 @@ lex.yy.o: lex.yy.c
 lex.yy.c: tiger.l
 	$(FX) tiger.l
 
-testparser: lex.yy.o tiger.tab.o test_parser.o buffman.o
+testparser: lex.yy.o tiger.tab.o test_parser.cc buffman.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 tiger.tab.o: tiger.tab.c lex.yy.c

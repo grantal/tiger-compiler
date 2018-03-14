@@ -7,7 +7,10 @@ void yyerror (char const *s) {
    std::cerr << s << std::endl;
 }
 
+std::shared_ptr<tiger::ASTNode> programNode;
+
 using namespace tiger;
+
 
 %}
 
@@ -16,12 +19,11 @@ using namespace tiger;
 }
 
 %token TYPE NEW ARRAY OF VAR ASSIGNMENT FUNCTION
-%token ENDL
+%token ENDL ENDF
 %token NIL INTLIT STRINGLIT ID
-%type<node> exp_
+%type<node> program exp exp_
 
 /* precedence rules */
-%left op
 %left '|'
 %left '&'
 %left '<' '>' '=' "<>" "<=" ">="
@@ -29,6 +31,10 @@ using namespace tiger;
 %left '*' '/'
 
 %%
+program: exp ENDF         {programNode = std::shared_ptr<ParentASTNode>(new ParentASTNode("program", {$1}));}
+ | decs ENDF              /*{$$ = new ParentASTNode("program", {$1});}*/
+;
+
 decs: 
  | dec
  | dec ENDL decs
@@ -83,7 +89,7 @@ exps_: exp
 /* helper for array creation and indexing */
 arry: ID '[' exp ']'
 
-exp: exp_
+exp: exp_                       {$$ = new ParentASTNode("exp", {$1});}
  | arry OF exp_
 
 exp_: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }

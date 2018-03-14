@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <vector>
 #include <cmath>
+#include <memory>
 
 
 /* interface to the lexer */
@@ -33,6 +34,9 @@ class ASTNode {
   virtual ~ASTNode() = default;
   virtual std::string toStr() const = 0; // For printing purposes
 };
+
+/* global variable to store the result of the parser */
+//extern std::shared_ptr<ASTNode> programNode;
 
 ///////////////////////////////////////////////////////////////////////////////
 // class for tokens like ID, String literals or interger literals that stores
