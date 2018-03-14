@@ -1,10 +1,7 @@
 %{
 #include <iostream>
-<<<<<<< HEAD
 #include "ast.hh"
 
-=======
->>>>>>> 507cb3221bed7718994e808b62108216c86f39e8
 int yylex();
 void yyerror (char const *s) {
    std::cerr << s << std::endl;
