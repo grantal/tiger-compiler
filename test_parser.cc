@@ -17,7 +17,7 @@ TEST_CASE("placeholder test","[syntax]") {
 
 TEST_CASE("test that nil gets parsed","[syntax]") {
     auto b = Buffman("nil");
-    yyparse();
+    REQUIRE(yyparse() == 0); //zero means it parsed successfully
     REQUIRE(programNode->toStr() == "program");
 }
 
