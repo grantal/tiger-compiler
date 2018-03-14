@@ -7,8 +7,16 @@
 #include "token.hh"
 #include "buffman.hh"
 
+#ifndef YY_BUF_SIZE
+#define YY_BUF_SIZE 16384
+#endif
+
 extern int yylex(void);
 extern FILE* yyin;
+extern YY_BUFFER_STATE yy_scan_string(const char*);
+extern YY_BUFFER_STATE yy_create_buffer(FILE*,int);
+extern void yy_switch_to_buffer(YY_BUFFER_STATE);
+extern void yy_delete_buffer(YY_BUFFER_STATE);
 
 TEST_CASE("Buffman lexing tests","[buffman]") {
     SECTION("buffman string constructor works") {
