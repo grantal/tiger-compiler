@@ -7,7 +7,10 @@ void yyerror (char const *s) {
    std::cerr << s << std::endl;
 }
 
-std::shared_ptr<tiger::ASTNode> programNode;
+namespace tiger {
+/* global variable to store the result of the parser */
+std::shared_ptr<ASTNode> programNode;
+}
 
 using namespace tiger;
 

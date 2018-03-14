@@ -6,9 +6,9 @@
 #include "buffman.hh"
 
 extern FILE* yyin;
-extern std::shared_ptr<tiger::ASTNode> programNode;
 
 namespace tiger {
+extern std::shared_ptr<ASTNode> programNode;
 
 
 TEST_CASE("placeholder test","[syntax]") {

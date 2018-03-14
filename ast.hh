@@ -35,9 +35,6 @@ class ASTNode {
   virtual std::string toStr() const = 0; // For printing purposes
 };
 
-/* global variable to store the result of the parser */
-//extern std::shared_ptr<ASTNode> programNode;
-
 ///////////////////////////////////////////////////////////////////////////////
 // class for tokens like ID, String literals or interger literals that stores
 // their token and their string value. So one may have token = ID and 
