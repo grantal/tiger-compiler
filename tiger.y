@@ -21,9 +21,11 @@ using namespace tiger;
   tiger::ASTNode::ASTptr node;
 }
 
-%token TYPE NEW ARRAY OF VAR ASSIGNMENT FUNCTION
+%token TYPE NEW ARRAY OF VAR FUNCTION
 %token ENDL ENDF
 %token NIL INTLIT STRINGLIT ID
+%token IF THEN ELSE WHILE FOR TO DO LET IN END BREAK IMPORT PRIMITIVE CLASS EXTENDS METHODS
+%token ERROR
 %type<node> program exp exp_
 
 /* precedence rules */
@@ -64,8 +66,8 @@ tyfields:
  | ID ':' typeId ',' tyfields
 ;
 
-vardec: VAR ID ASSIGNMENT exp
- | VAR ID ':' typeId ASSIGNMENT exp
+vardec: VAR ID ":=" exp
+ | VAR ID ':' typeId ":=" exp
 ;
 
 fundec: FUNCTION ID '(' tyfields ')' '=' exp

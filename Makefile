@@ -11,8 +11,8 @@ all: testlexer testparser
 testlexer: lex.yy.o test_lexer.o buffman.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-lex.yy.o: lex.yy.c
-	$(CXX) $(OLDFLAGS) -o $@ $^
+lex.yy.o: lex.yy.c tiger.tab.h
+	$(CXX) $(OLDFLAGS) -o $@ lex.yy.c
 
 lex.yy.c: tiger.l
 	$(FX) tiger.l

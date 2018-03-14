@@ -1,5 +1,5 @@
 %{
-	#include "token.hh"
+	#include "tiger.tab.h"
 	#include <unistd.h>
 	int commentDepth = 0;
 %}
@@ -47,21 +47,21 @@ class				{return CLASS;}
 extends				{return EXTENDS;}
 methods				{return METHODS;}
 new				{return NEW;}
-,				{return COMMA;}
-:				{return COLON;}
-;				{return SEMICOLON;}
-\(				{return LPAREN;}
-\)				{return RPAREN;}
-\[				{return LBRACKET;}
-\]				{return RBRACKET;}
-\{				{return LBRACE;}
-\}				{return RBRACE;}
-\.				{return DOT;}
-\+				{return PLUS;}
--				{return MINUS;}
-\*				{return STAR;}
-\/				{return FSLASH;}
-= 				{return EQUAL;}
+,  | 				
+:  |     			
+;  |     		        
+\( |     			
+\) |     			
+\[ |     			
+\] |     			
+\{ |     			
+\} |     			
+\. |     			
+\+ |     			
+-  |     			
+\* |     			
+\/ |     			
+=                               {return yytext[0];}      			
 \<\>				{return NOTEQUAL;}
 \<				{return LESS;}
 \>				{return GREATER;}
@@ -71,7 +71,7 @@ new				{return NEW;}
 \|				{return OR;}
 :=				{return ASSIGNMENT;}
 \n\r|\r\n|\r|\n			{return ENDL;}
-[a-zA-Z][A-Za-z0-9_]*|_main     {return IDENTIFIER;}
+[a-zA-Z][A-Za-z0-9_]*|_main     {return ID;}
 [ \t]*                          {}
 .                               {return ERROR;}
 %%
