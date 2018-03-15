@@ -74,6 +74,5 @@ new				{return NEW;}
 \n\r|\r\n|\r|\n			{return ENDL;}
 [a-zA-Z][A-Za-z0-9_]*|_main     {return ID;}
 [ \t]*                          {}
-\000                            {return ENDF;}
 .                               {return ERROR;}
 %%

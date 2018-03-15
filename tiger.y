@@ -27,7 +27,7 @@ using namespace tiger;
 %token NIL INTLIT STRINGLIT NEW
 %token IF THEN ELSE WHILE FOR TO DO LET IN END BREAK
 %token CLASS EXTENDS PRIMITIVE IMPORT METHOD
-%token ERROR ENDF NOTEQUAL ELESS EGREATER
+%token ERROR NOTEQUAL ELESS EGREATER
 
 /* precedence rules (Added Assingnment op) */
 %left op
@@ -46,8 +46,8 @@ control flow shift/reduce conflicts */
 %nonassoc OF
 
 %%
-program: exp ENDF         {programNode = std::shared_ptr<ParentASTNode>(new ParentASTNode("program", {$1}));}
- | decs ENDF              
+program: exp         {programNode = std::shared_ptr<ParentASTNode>(new ParentASTNode("program", {$1}));}
+ | decs               
 ;
 
 exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
