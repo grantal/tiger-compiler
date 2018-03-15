@@ -1,11 +1,10 @@
-/* Companion source code for "flex & bison", published by O'Reilly
- * Media, ISBN 978-0-596-15597-1
- * Copyright (c) 2009, Taughannock Networks. All rights reserved.
- * See the README file for license conditions and contact info.
- * $Header: /home/johnl/flnb/code/RCS/fb3-1.h,v 2.1 2009/11/08 02:53:18 johnl Exp $
- */
-/*
- * Declarations for a calculator fb3-1
+/* ast.hh
+ * based off of ast.hh by Eitan Frachtenberg
+ * api for our Abstract Syntax Tree classes
+ * There are 3 main subclass of ASTNode:
+ * TokenASTNode, which takes represents a terminal token that has an associated Enum token
+ * StringASTNode, for terminal tokens that do not have an associated Enum
+ * ParentASTNOde, like StringASTNode but for nonterminals
  */
 #pragma once
 
@@ -81,20 +80,8 @@ class ParentASTNode : public ASTNode {
   ParentASTNode(string_t desc, std::vector<ASTptr> children)
    : ASTNode(), desc_(desc), children_(children)
   {}
-  virtual ~ParentASTNode()
-  {
-    std::for_each(children_.begin(), children_.end(), [](ASTptr c){ delete c;}); 
-  };
-
-  virtual string_t toStr() const
-  {
-    std::string retStr = desc_ + " {\n";
-    std::for_each(children_.begin(), children_.end(), [&retStr](ASTptr c){
-        retStr += "\t" + c->toStr() + "\n";
-    }); 
-    return retStr + "}";
-  }
-    
+  virtual ~ParentASTNode();
+  virtual string_t toStr() const;    
   virtual string_t getDesc() const
   {
     return desc_;
