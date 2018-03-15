@@ -8,11 +8,11 @@ LIBS=-lfl
 
 all: testlexer testparser
 
-testlexer: lex.yy.o test_lexer.o buffman.o
+testlexer: lex.yy.o tiger.tab.o test_lexer.o buffman.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-lex.yy.o: lex.yy.c tiger.tab.h
-	$(CXX) $(OLDFLAGS) -o $@ lex.yy.c
+lex.yy.o: lex.yy.c tiger.tab.h tiger.tab.c
+	$(CXX) $(OLDFLAGS) lex.yy.c tiger.tab.c
 
 lex.yy.c: tiger.l
 	$(FX) tiger.l

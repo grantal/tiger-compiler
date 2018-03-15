@@ -1,6 +1,7 @@
 %{
 #include <iostream>
 #include "ast.hh"
+#include <cstring>
 
 int yylex();
 void yyerror (char const *s) {
@@ -19,12 +20,13 @@ using namespace tiger;
 
 %union {
   tiger::ASTNode::ASTptr node;
+  char *strVal;
 }
 
 %type<node> program exp
 
-%token ENDL TYPE ID ARRAY OF VAR ASSIGNMENT FUNCTION
-%token NIL INTLIT STRINGLIT NEW
+%token<strVal> INTLIT STRINGLIT ID
+%token ENDL NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
 %token IF THEN ELSE WHILE FOR TO DO LET IN END BREAK
 %token CLASS EXTENDS PRIMITIVE IMPORT METHOD
 %token ERROR NOTEQUAL ELESS EGREATER
@@ -51,7 +53,7 @@ program: exp         {programNode = std::shared_ptr<ParentASTNode>(new ParentAST
 ;
 
 exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
- | INTLIT
+ | INTLIT                      {$$ = new TokenASTNode(INTLIT, $1);}
  | STRINGLIT
 /* array and record creation */
  | ID '['exp']' OF exp
