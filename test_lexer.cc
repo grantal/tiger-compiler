@@ -4,11 +4,20 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "token.hh"
+#include "ast.hh" 
+#include "tiger.tab.h"
 #include "buffman.hh"
+
+#ifndef YY_BUF_SIZE
+#define YY_BUF_SIZE 16384
+#endif
 
 extern int yylex(void);
 extern FILE* yyin;
+extern YY_BUFFER_STATE yy_scan_string(const char*);
+extern YY_BUFFER_STATE yy_create_buffer(FILE*,int);
+extern void yy_switch_to_buffer(YY_BUFFER_STATE);
+extern void yy_delete_buffer(YY_BUFFER_STATE);
 
 TEST_CASE("Buffman lexing tests","[buffman]") {
     SECTION("buffman string constructor works") {
@@ -28,40 +37,20 @@ const std::vector<int> tEnm = {ARRAY,IF,THEN,
                                 DO,LET,IN,END,OF,
                                 BREAK,NIL,FUNCTION,
                                 VAR,TYPE,IMPORT,PRIMITIVE,
-                                CLASS,EXTENDS,METHODS,NEW,
-                                COMMA,COLON,SEMICOLON,
-                                LPAREN,RPAREN,LBRACKET,RBRACKET,
-                                LBRACE,RBRACE,DOT,PLUS,MINUS,STAR,
-                                FSLASH,EQUAL,NOTEQUAL,LESS,GREATER,
-                                ELESS,EGREATER,AND,OR,
+                                CLASS,EXTENDS,METHOD,NEW,
+                                NOTEQUAL,ELESS,EGREATER,
                                 ASSIGNMENT,ENDL,STRINGLIT,INTLIT,
-                                IDENTIFIER,ERROR};
+                                ID,ERROR};
 
 const std::vector<std::string>  tStr = {"array","if","then",
                           "else","while","for","to",
                           "do","let","in","end","of",
                           "break","nil","function",
                           "var","type","import","primitive",
-                          "class","extends","methods","new",
-                          ",",":",";",
-                          "(",")","[","]",
-                          "{","}",".","+","-","*",
-                          "/","=","<>","<",">",
-                          "<=",">=","&","|",
+                          "class","extends","method","new",
+                          "<>","<=",">=",
                           ":=","\r","\"foo\"","239",
                           "id", "!err"};
-
-/*
-        const std::vector<std::string> tGarbage = {"array","if","then",
-                                  "else","while","for","to",
-                                  "do","let","in","end","of",
-                                  "break","nil","function",
-                                  "var","type","import","primitive",
-                                  "class","extends","methods","new",
-                                  ",",":",";","(",")","[","]",".","+",
-                                  "-","*","/","==","<>","<",">","=>","=<",
-                                  "=","\"foo\"","239"," ","\t","\n"};
-*/
 
 /*Loops through parallel arrays tStr and tEnm, feeding
 in a test string from tStr with the desired output at the same
@@ -80,28 +69,27 @@ TEST_CASE("Basic Test Case for Keywords","[tokens]") {
 	}
 
 }
-/*Similar to first test case, but for each key words I loop through
-a set of garbage strings that I append to the end of the keywords
-before inputing them to the lexer. This should simulate a fair portion
-of cases where a keyword is close to some other token*/
-/*
-TEST_CASE("Test Case for keywords with suffix garbage","[tokens]") {
+
+const std::vector<char> tEnmC = {',',':',';',
+                                '(',')','[',']', '{','}','.','+','-','*',
+                                '/','=','<','>','&','|'};
+
+const std::vector<std::string> tStrC = {",",":",";","(",")","[","]", "{","}",".","+","-","*","/","=","<",">","&","|"};
+
+TEST_CASE("Basic Test Case for Chars","[tokens]") {
 
 	YY_BUFFER_STATE testBuffer;
 
-	for(auto i=0; i< static_cast<int>(tStr.size());++i){
-		for(auto j=0; j < static_cast<int>(tGarbage.size());++j){
-			SECTION("garbage test for enum #" + std::to_string(i) + " with suffix: " + tGarbage[j]){
-				testBuffer = yy_scan_string((tStr[i]+tGarbage[j]).c_str());
-				yy_switch_to_buffer(testBuffer);
-				REQUIRE(yylex() == tEnm[i]);
-				yy_delete_buffer(testBuffer);
-			}
+	for(auto i=0; i < static_cast<int>(tStrC.size());++i){
+		SECTION("Plain test for enum #" + std::to_string(i) + " and input " + tStrC[i]){
+			testBuffer = yy_scan_string(tStrC[i].c_str());
+			yy_switch_to_buffer(testBuffer);
+			REQUIRE(yylex() == tEnmC[i]);
+			yy_delete_buffer(testBuffer);
 		}
 	}
 
 }
-*/
 
 /*Makes sure everything in the list tEndl is an endline character
 */
@@ -190,7 +178,7 @@ TEST_CASE("More identifier tests","[tokens]") {
 		SECTION("Plain test for identifier " + tId[i]){
 			testBuffer = yy_scan_string(tId[i].c_str());
 			yy_switch_to_buffer(testBuffer);
-			REQUIRE(yylex() == IDENTIFIER);
+			REQUIRE(yylex() == ID);
 			yy_delete_buffer(testBuffer);
 		}
 	}
@@ -232,27 +220,27 @@ TEST_CASE("make sure real file test1.tig works","[tokens]") {
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == EQUAL);
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == '=');
     REQUIRE(yylex() == ARRAY);
     REQUIRE(yylex() == OF);
-    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ID);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == VAR);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == COLON);
-    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == ':');
+    REQUIRE(yylex() == ID);
     REQUIRE(yylex() == ASSIGNMENT);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == LBRACKET);
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == '[');
     REQUIRE(yylex() == INTLIT);
-    REQUIRE(yylex() == RBRACKET);
+    REQUIRE(yylex() == ']');
     REQUIRE(yylex() == OF);
     REQUIRE(yylex() == INTLIT);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == IN);
     REQUIRE(yylex() == ENDL);
-    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ID);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
@@ -269,33 +257,33 @@ TEST_CASE("make sure real file test2.tig works","[tokens]") {
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == EQUAL);
-    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == '=');
+    REQUIRE(yylex() == ID);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == EQUAL);
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == '=');
     REQUIRE(yylex() == ARRAY);
     REQUIRE(yylex() == OF);
-    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ID);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == VAR);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == COLON);
-    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == ':');
+    REQUIRE(yylex() == ID);
     REQUIRE(yylex() == ASSIGNMENT);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == LBRACKET);
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == '[');
     REQUIRE(yylex() == INTLIT);
-    REQUIRE(yylex() == RBRACKET);
+    REQUIRE(yylex() == ']');
     REQUIRE(yylex() == OF);
     REQUIRE(yylex() == INTLIT);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == IN);
     REQUIRE(yylex() == ENDL);
-    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ID);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);
@@ -312,44 +300,44 @@ TEST_CASE("make sure test3.tig works","[tokens]") {
     REQUIRE(yylex() == LET);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == TYPE);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == EQUAL);
-    REQUIRE(yylex() == LBRACE);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == COLON);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == COMMA);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == COLON);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == RBRACE);
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == '=');
+    REQUIRE(yylex() == '{');
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == ':');
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == ',');
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == ':');
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == '}');
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == VAR);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == COLON);
-    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == ':');
+    REQUIRE(yylex() == ID);
     REQUIRE(yylex() == ASSIGNMENT);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == LBRACE);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == EQUAL);
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == '{');
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == '=');
     REQUIRE(yylex() == STRINGLIT);
-    REQUIRE(yylex() == COMMA);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == EQUAL);
+    REQUIRE(yylex() == ',');
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == '=');
     REQUIRE(yylex() == INTLIT);
-    REQUIRE(yylex() == RBRACE);
+    REQUIRE(yylex() == '}');
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == IN);
     REQUIRE(yylex() == ENDL);
-    REQUIRE(yylex() == IDENTIFIER);
-    REQUIRE(yylex() == DOT);
-    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ID);
+    REQUIRE(yylex() == '.');
+    REQUIRE(yylex() == ID);
     REQUIRE(yylex() == ASSIGNMENT);
     REQUIRE(yylex() == STRINGLIT);
-    REQUIRE(yylex() == SEMICOLON);
+    REQUIRE(yylex() == ';');
     REQUIRE(yylex() == ENDL);
-    REQUIRE(yylex() == IDENTIFIER);
+    REQUIRE(yylex() == ID);
     REQUIRE(yylex() == ENDL);
     REQUIRE(yylex() == END);
     REQUIRE(yylex() == ENDL);

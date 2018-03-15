@@ -44,3 +44,4 @@ lex.yy.c
 
 # bison files
 *.tab.*
+tiger.output
