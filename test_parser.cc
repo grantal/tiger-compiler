@@ -9,7 +9,7 @@
 extern FILE* yyin;
 
 namespace tiger {
-extern std::shared_ptr<ASTNode> programNode;
+extern std::shared_ptr<ParentASTNode> programNode;
 
 TEST_CASE("test that nil gets parsed","[syntax]") {
     auto b = buffman::Buffman("nil");
@@ -52,6 +52,79 @@ TEST_CASE("Test Keywords shows up in ast", "[syntax]") {
             REQUIRE(programNode->toStr().find(keywords[i]) != std::string::npos);
         }
     }
+}
+
+TEST_CASE("Test structure of some satements", "[syntax]") {
+
+    SECTION("array creation") {
+            auto b = buffman::Buffman("id [1] of 2");
+            REQUIRE(yyparse() == 0); 
+            ParentASTNode* arrayCreate = (ParentASTNode*)programNode->_getChild(0);
+            // make sure ID child is good
+            REQUIRE(arrayCreate->_getChild(0)->toStr().find("id") != std::string::npos);
+            REQUIRE(arrayCreate->_getChild(0)->toStr().find("1") == std::string::npos);
+            REQUIRE(arrayCreate->_getChild(0)->toStr().find("2") == std::string::npos);
+            // make sure length child is good
+            REQUIRE(arrayCreate->_getChild(1)->toStr().find("id") == std::string::npos);
+            REQUIRE(arrayCreate->_getChild(1)->toStr().find("1") != std::string::npos);
+            REQUIRE(arrayCreate->_getChild(1)->toStr().find("2") == std::string::npos);
+            // make sure initializer child is good
+            REQUIRE(arrayCreate->_getChild(2)->toStr().find("id") == std::string::npos);
+            REQUIRE(arrayCreate->_getChild(2)->toStr().find("1") == std::string::npos);
+            REQUIRE(arrayCreate->_getChild(2)->toStr().find("2") != std::string::npos);
+    } 
+
+    SECTION("object creation") {
+            auto b = buffman::Buffman("new id");
+            REQUIRE(yyparse() == 0); 
+            ParentASTNode* objectCreate = (ParentASTNode*)programNode->_getChild(0);
+            REQUIRE(objectCreate->toStr().find("new") != std::string::npos);
+            REQUIRE(objectCreate->_getChild(0)->toStr().find("id") != std::string::npos);
+            REQUIRE(objectCreate->_getChild(0)->toStr().find("new") == std::string::npos);
+    } 
+    SECTION("function call") {
+            auto b = buffman::Buffman("id(1)");
+            REQUIRE(yyparse() == 0);
+            ParentASTNode* funCall = (ParentASTNode*)programNode->_getChild(0);
+            REQUIRE(funCall->toStr().find("function") != std::string::npos);
+            // check function name
+            REQUIRE(funCall->_getChild(0)->toStr().find("id") != std::string::npos);
+            REQUIRE(funCall->_getChild(0)->toStr().find("1") == std::string::npos);
+            // check function args
+            REQUIRE(funCall->_getChild(1)->toStr().find("1") != std::string::npos);
+            REQUIRE(funCall->_getChild(1)->toStr().find("id") == std::string::npos);
+    } 
+    SECTION("negative") {
+            auto b = buffman::Buffman("-1");
+            REQUIRE(yyparse() == 0);
+            ParentASTNode* mainNode = (ParentASTNode*)programNode->_getChild(0);
+            REQUIRE(mainNode->toStr().find("-") != std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("1") != std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("-") == std::string::npos);
+    }
+}
+
+TEST_CASE("Test Binary Ops structure", "[syntax]") {
+    const std::vector<std::string> binOps = {
+        "+", "-", "*", "/", "=", "<>", ">", "<", ">=", "<=", "&", "|" 
+    };
+    for(auto i=0; i < static_cast<int>(binOps.size());++i){
+        SECTION("Test for bin op \"" + binOps[i] +"\""){
+            auto b = buffman::Buffman("1" + binOps[i] + "2");
+            REQUIRE(yyparse() == 0);
+            ParentASTNode* mainNode = (ParentASTNode*)programNode->_getChild(0);
+            REQUIRE(mainNode->toStr().find(binOps[i]) != std::string::npos);
+            // make sure left operand is good
+            REQUIRE(mainNode->_getChild(0)->toStr().find("1") != std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("2") == std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find(binOps[i]) == std::string::npos);
+            // make sure right operand is good
+            REQUIRE(mainNode->_getChild(1)->toStr().find("2") != std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("1") == std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find(binOps[i]) == std::string::npos);
+        }
+    }
+    
 }
     
 /* These next few tests will be reading from files

@@ -80,6 +80,7 @@ class ParentASTNode : public ASTNode {
   {
     return desc_;
   }
+  // returns child for testing
   ASTptr _getChild(int index) const
   {
     return children_[index];
