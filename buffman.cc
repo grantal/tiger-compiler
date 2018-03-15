@@ -18,6 +18,8 @@ extern YY_BUFFER_STATE yy_create_buffer(FILE*,int);
 extern void yy_switch_to_buffer(YY_BUFFER_STATE);
 extern void yy_delete_buffer(YY_BUFFER_STATE);
 
+namespace buffman {
+
 Buffman::Buffman(std::string s) :buff_(), f_(nullptr) {
     buff_ = yy_scan_string(s.c_str());
     yy_switch_to_buffer(buff_);
@@ -32,3 +34,5 @@ Buffman::~Buffman() {
         fclose(f_);
     }
 }
+
+} //namespace

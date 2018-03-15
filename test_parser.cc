@@ -12,14 +12,14 @@ namespace tiger {
 extern std::shared_ptr<ASTNode> programNode;
 
 TEST_CASE("test that nil gets parsed","[syntax]") {
-    auto b = Buffman("nil");
+    auto b = buffman::Buffman("nil");
     REQUIRE(yyparse() == 0); //zero means it parsed successfully
     // check that the word "nil" appears in the toStr
     REQUIRE(programNode->toStr().find("nil") != std::string::npos);
 }
 
 TEST_CASE("test that intlits get parsed","[syntax]") {
-    auto b = Buffman("32");
+    auto b = buffman::Buffman("32");
     REQUIRE(yyparse() == 0); //zero means it parsed successfully
     // check that the word "nil" appears in the toStr
     REQUIRE(programNode->toStr().find("32") != std::string::npos);

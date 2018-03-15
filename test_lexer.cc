@@ -21,12 +21,12 @@ extern void yy_delete_buffer(YY_BUFFER_STATE);
 
 TEST_CASE("Buffman lexing tests","[buffman]") {
     SECTION("buffman string constructor works") {
-        auto b = Buffman("if");
+        auto b = buffman::Buffman("if");
         REQUIRE(yylex() == IF);
     }
     SECTION("buffman file constructor works") {
         yyin = fopen("tiger-programs/test2.tig", "r");
-        auto b = Buffman(yyin);
+        auto b = buffman::Buffman(yyin);
         REQUIRE(yylex() == ENDL);
         REQUIRE(yylex() == LET);
     }
