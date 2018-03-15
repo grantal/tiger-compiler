@@ -80,7 +80,10 @@ class ParentASTNode : public ASTNode {
   {
     return desc_;
   }
-
+  ASTptr _getChild(int index) const
+  {
+    return children_[index];
+  }
  private:
   const string_t desc_;
   const std::vector<ASTptr> children_;
