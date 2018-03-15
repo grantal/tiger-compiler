@@ -1,5 +1,6 @@
 #define CATCH_CONFIG_MAIN
-#include <string.h>
+#include <string>
+#include <memory>
 #include "catch.hpp"
 #include "ast.hh"
 #include "tiger.tab.h"

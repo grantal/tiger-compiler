@@ -7,14 +7,8 @@
  * ParentASTNOde, like StringASTNode but for nonterminals
  */
 #pragma once
-
-#include <functional>
 #include <string>
-#include <algorithm>
 #include <vector>
-#include <cmath>
-#include <memory>
-
 
 /* interface to the lexer */
 void yyerror(char *s, ...);

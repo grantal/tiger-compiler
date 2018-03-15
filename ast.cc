@@ -1,6 +1,7 @@
 /* ast.cc
  * implementation of ast class
  */
+#include <algorithm>
 #include "ast.hh"
 
 

@@ -1,7 +1,7 @@
 %{
 #include <iostream>
 #include "ast.hh"
-#include <cstring>
+#include <memory>
 
 int yylex();
 void yyerror (char const *s) {
