@@ -135,7 +135,6 @@ dec
 /*variable declaration */
  | varDec                                   {$$ = $1;}
 /*function declartation */
- | FUNCTION id '(' ')' '=' exp     {$$ = new ParentASTNode("function declaration", nodeType::FUNC_DEC, {$2, $6});}
  | FUNCTION id '(' tyFields ')' '=' exp     {$$ = new ParentASTNode("function declaration", nodeType::FUNC_DEC, {$2, $4, $7});}
  | FUNCTION id '(' tyFields ')' ':' typeId '=' exp {$$ = new ParentASTNode("function declaration", nodeType::FUNC_DEC, {$2, $4, $9, $7});}
 /*primitive declaration */
@@ -150,7 +149,6 @@ varDec
  : VAR id ASSIGNMENT exp                    {$$ = new ParentASTNode("variable declaration", nodeType::VAR_DEC, {$2, $4});}
  | VAR id ':' typeId ASSIGNMENT exp         {$$ = new ParentASTNode("variable declaration", nodeType::VAR_DEC, {$2, $6, $4});}
 
-/*Departure: I cover the classfields = 0 case whereever classFields is used */
 classFields
  : classField                               {$$ = new ParentASTNode("class fields", nodeType::CLASS_FIELDS, {$1});}
 
@@ -160,14 +158,11 @@ classField
  : varDec                                   {$$ = new ParentASTNode("class field", nodeType::CLASS_FIELD, {$1});}
  | METHOD id '(' tyFields ')' '=' exp       {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, $4, nullptr, $7});}
 
- | METHOD id '(' ')' '=' exp                {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, nullptr, nullptr, $6});}
  | METHOD id '(' tyFields ')' ':' typeId '=' exp {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, $4, $7, $9});}
- | METHOD id '(' ')' ':' typeId '=' exp     {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, nullptr, $6, $8});}
 
 ty
  : typeId                                   {$$ = $1;}
  /*Record type definition.*/
- | '{' '}'                                  {$$ = new ParentASTNode("record type definition", nodeType::REC_TYPE, {});}
  | '{' tyFields '}'                         {$$ = new ParentASTNode("record type definition", nodeType::REC_TYPE, {$2});}
  /*Array type definition. */
  | ARRAY OF typeId                          {$$ = new ParentASTNode("array type definition", nodeType::ARRAY_TYPE, {$3});}
@@ -177,11 +172,9 @@ ty
  | CLASS EXTENDS typeId '{' '}'             {$$ = new ParentASTNode("class definition", nodeType::CLASS_TYPE, {nullptr, $3});}
  | CLASS EXTENDS typeId '{' classFields '}' {$$ = new ParentASTNode("class definition", nodeType::CLASS_TYPE, {$5, $3});}
 ;
-/*Departure: I coever the tyFields = 0 case wherever tyFields
- is used. 
- */
-tyFields
- : id ':' typeId                           {$$ = new ParentASTNode("type fields", nodeType::TY_FIELDS, {$1, $3});}
+
+tyFields :                                 {$$ = new ParentASTNode("type fields", nodeType::TY_FIELDS, {});} 
+ | id ':' typeId                           {$$ = new ParentASTNode("type fields", nodeType::TY_FIELDS, {$1, $3});}
 
  | id ':' typeId ',' tyFields              {$$ = new ParentASTNode("type fields", nodeType::TY_FIELDS, {$1, $3, $5});}
 ;

@@ -113,9 +113,9 @@ class StringASTNode : public ASTNode {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-//tiger.y Stores a vector of its children and a string describing what it does 
-//tiger.y So you may have a node with desc of "typeId" and a single child thats a token
-//tiger.y Node with token "ID"
+// Stores a vector of its children and a string describing what it does 
+// So you may have a node with desc of "typeId" and a single child thats a token
+// Node with token "ID"
 class ParentASTNode : public ASTNode {
  public:
   ParentASTNode(string_t desc, nodeType nType, std::vector<ASTptr> children)
@@ -136,6 +136,10 @@ class ParentASTNode : public ASTNode {
   virtual nodeType getNodeType() const
   {
   	return nodeType_;
+  }
+  int numChildren() const
+  {
+    return children_.size();
   }
 
  private:
