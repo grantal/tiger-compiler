@@ -1,21 +1,14 @@
-/* Companion source code for "flex & bison", published by O'Reilly
- * Media, ISBN 978-0-596-15597-1
- * Copyright (c) 2009, Taughannock Networks. All rights reserved.
- * See the README file for license conditions and contact info.
- * $Header: /home/johnl/flnb/code/RCS/fb3-1.h,v 2.1 2009/11/08 02:53:18 johnl Exp $
- */
-/*
- * Declarations for a calculator fb3-1
+/* ast.hh
+ * based off of ast.hh by Eitan Frachtenberg
+ * api for our Abstract Syntax Tree classes
+ * There are 3 main subclass of ASTNode:
+ * TokenASTNode, which takes represents a terminal token that has an associated Enum token
+ * StringASTNode, for terminal tokens that do not have an associated Enum
+ * ParentASTNOde, like StringASTNode but for nonterminals
  */
 #pragma once
-
-#include <functional>
 #include <string>
-#include <algorithm>
 #include <vector>
-#include <cmath>
-#include <memory>
-
 
 /* interface to the lexer */
 void yyerror(char *s, ...);
@@ -26,10 +19,11 @@ enum class nodeType{
 	PROGRAM,		//tiger.y 51-52
 	ARRAY, 			//tiger.y 59
 	EMPTY_REC, 		//tiger.y 60,
-	NEW_REC, 		//tiger.y 60-61
+	RECORD, 		//tiger.y 60-61
 	REC_VAL, 		//tiger.y 105 - 106
-	NEW_ID, 		//tiger.y 63
-	REF, 			//tiger.y (reference) 65-66, 116-119
+	OBJECT, 		//tiger.y 63
+	REFERENCE, 		//tiger.y (reference) 65-66, 116-119
+	ARRAY_REF,
 	CALL_FUNC,		//tiger.y 68-69
 	CALL_METHOD,	//tiger.y 71-72
 	NEGATE, 		//tiger.y 74
@@ -45,13 +39,12 @@ enum class nodeType{
 	EQ_LESS, 		//tiger.y 84
 	AND, 			//tiger.y 85
 	OR, 			//tiger.y 86
-	EXPS, 			//tiger.y 87, 124-125 (? unsure)
+	SEQUENCE, 		//tiger.y 87, 124-125 (? unsure)
 	EXP_LIST,		//tiger.y 110-111
-	ASSINGMENT_, 	//tiger.y 89-90
+	ASSIGNMENT_, 	//tiger.y 89-90
 	IF_THEN, 		//tiger.y 92-93
 	WHILE_DO, 		//tiger.y 94
 	FOR_TO_DO, 		//tiger.y 95
-	BREAK_, 		//tiger.y 96
 	LET_IN_END, 	//tiger.y 97-100
 	DECS, 			//tiger.y 130-131
 	TYPE_DEC, 		//tiger.y 135
@@ -127,23 +120,16 @@ class ParentASTNode : public ASTNode {
   ParentASTNode(string_t desc, nodeType nType, std::vector<ASTptr> children)
    : ASTNode(), desc_(desc), nodeType_(nType), children_(children)
   {}
-  virtual ~ParentASTNode()
-  {
-    std::for_each(children_.begin(), children_.end(), [](ASTptr c){ delete c;}); 
-  };
-
-  virtual string_t toStr() const
-  {
-    std::string retStr = desc_ + " {\n";
-    std::for_each(children_.begin(), children_.end(), [&retStr](ASTptr c){
-        retStr += "\t" + c->toStr() + "\n";
-    }); 
-    return retStr + "}";
-  }
-    
+  virtual ~ParentASTNode();
+  virtual string_t toStr() const;    
   virtual string_t getDesc() const
   {
     return desc_;
+  }
+  // returns child for testing
+  ASTptr _getChild(int index) const
+  {
+    return children_[index];
   }
 
   virtual nodeType getNodeType() const
