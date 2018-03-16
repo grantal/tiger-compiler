@@ -21,7 +21,7 @@ using namespace tiger;
   char *strVal;
 }
 
-%type<node> program id typeId exp exps lValue decs dec ty tyFields classFields classField varDec
+%type<node> program id typeId exp exps expList lValue decs dec ty tyFields classFields classField varDec
 
 %token<strVal> INTLIT STRINGLIT ID
 %token ENDL NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
@@ -112,8 +112,8 @@ recs
 ;
 /* exps separated by commas */
 expList
- : exp
- | exp ',' expList
+ : exp                                      {$$ = $1;}
+ | exp ',' expList                          {$$ = new ParentASTNode("exp list", nodeType::EXP_LIST, {$1, $3});}
 ;
 
 /* Departure: I cover the single id case above and the id > 1 case here */
@@ -126,8 +126,8 @@ lValue
 
 /* exps separated by semicolons */
 exps
- : exp
- | exp ';' exps
+ : exp                                     {$$ = $1;}  
+ | exp ';' exps                            {$$ = new ParentASTNode("Sequence", nodeType::SEQUENCE, {$1, $3});}
  ;
 
 /*Departure: I cover the decs = 0 case wherever decs is used */
