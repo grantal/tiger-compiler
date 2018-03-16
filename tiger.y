@@ -59,7 +59,7 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | typeId '{' '}'              {$$ = new ParentASTNode("Record", nodeType::RECORD,{$1,nullptr});}
  | typeId '{' recs '}'         {$$ = new ParentASTNode("Record", nodeType::RECORD,{$1,$3});}
 /* Objects creation */
- | NEW typeId                  {$$ = new ParentASTNode("Object", nodeType::OBJECT, {$2,nullptr});}
+ | NEW typeId                  {$$ = new ParentASTNode("new Object", nodeType::OBJECT, {$2,nullptr});}
 /* Variables, filed, elements of an array */
  | lValue                      {$$ = new ParentASTNode("Reference", nodeType::REFERENCE, {$1,nullptr});}
  | id                          {$$ = new ParentASTNode("Reference", nodeType::REFERENCE, {$1,nullptr});}
@@ -71,18 +71,18 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | lValue '(' expList ')'      {$$ = new ParentASTNode("Call Method", nodeType::CALL_METHOD,{$1,$3});}
 /* Operations */
  | '-' exp                     {$$ = new ParentASTNode("Negate", nodeType::NEGATE,{$2});}
- | exp '+' exp                 {$$ = new ParentASTNode("Add", nodeType::ADD,{$1,$3});}
- | exp '-' exp                 {$$ = new ParentASTNode("Subtract", nodeType::SUB,{$1,$3});}
- | exp '*' exp                 {$$ = new ParentASTNode("Mulitply", nodeType::MULT,{$1,$3});}
- | exp '/' exp                 {$$ = new ParentASTNode("Divide", nodeType::DIV,{$1,$3});}
- | exp '=' exp                 {$$ = new ParentASTNode("Equal", nodeType::EQUAL,{$1,$3});}
- | exp NOTEQUAL exp            {$$ = new ParentASTNode("Not Equal", nodeType::NOT_EQUAL,{$1,$3});}
- | exp '>' exp                 {$$ = new ParentASTNode("Greater", nodeType::GREATER,{$1,$3});}
- | exp '<' exp                 {$$ = new ParentASTNode("Lesser", nodeType::LESSER,{$1,$3});}
- | exp EGREATER exp            {$$ = new ParentASTNode("Equal or Greater", nodeType::EQ_GREATER,{$1,$3});}
- | exp ELESS exp               {$$ = new ParentASTNode("Equal or Less", nodeType::EQ_LESS,{$1,$3});}
- | exp '&' exp                 {$$ = new ParentASTNode("And", nodeType::AND,{$1,$3});}
- | exp '|' exp                      {$$ = new ParentASTNode("or",nodeType::OR, {$1, $3});}
+ | exp '+' exp                 {$$ = new ParentASTNode("Add (+)", nodeType::ADD,{$1,$3});}
+ | exp '-' exp                 {$$ = new ParentASTNode("Subtract (-)", nodeType::SUB,{$1,$3});}
+ | exp '*' exp                 {$$ = new ParentASTNode("Mulitply (*)", nodeType::MULT,{$1,$3});}
+ | exp '/' exp                 {$$ = new ParentASTNode("Divide (/)", nodeType::DIV,{$1,$3});}
+ | exp '=' exp                 {$$ = new ParentASTNode("Equal (=)", nodeType::EQUAL,{$1,$3});}
+ | exp NOTEQUAL exp            {$$ = new ParentASTNode("Not Equal (<>)", nodeType::NOT_EQUAL,{$1,$3});}
+ | exp '>' exp                 {$$ = new ParentASTNode("Greater (>)", nodeType::GREATER,{$1,$3});}
+ | exp '<' exp                 {$$ = new ParentASTNode("Lesser (<)", nodeType::LESSER,{$1,$3});}
+ | exp EGREATER exp            {$$ = new ParentASTNode("Equal or Greater (>=)", nodeType::EQ_GREATER,{$1,$3});}
+ | exp ELESS exp               {$$ = new ParentASTNode("Equal or Less (<=)", nodeType::EQ_LESS,{$1,$3});}
+ | exp '&' exp                 {$$ = new ParentASTNode("And (&)", nodeType::AND,{$1,$3});}
+ | exp '|' exp                      {$$ = new ParentASTNode("or (|)",nodeType::OR, {$1, $3});}
  | '(' exps ')'                     {$$ = new ParentASTNode("sequence",nodeType::SEQUENCE, {$2});}
 /*Assignment */
  | lValue ASSIGNMENT exp            {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3});}
@@ -129,11 +129,13 @@ decs
 dec
  : TYPE id '=' ty                           {$$ = new ParentASTNode("type declation", nodeType::TYPE_DEC, {$2, $4});}
 /*class definition NOTE: the id of what it extends is the third child*/
+ | CLASS id '{' '}'                         {$$ = new ParentASTNode("class declaration", nodeType::CLASS_DEC, {$2});}
  | CLASS id '{' classFields '}'             {$$ = new ParentASTNode("class declaration", nodeType::CLASS_DEC, {$2, $4});}
  | CLASS id EXTENDS typeId '{' classFields '}'  {$$ = new ParentASTNode("class declaration w/ extends", nodeType::CLASS_DEC, {$2, $6, $4});}
 /*variable declaration */
  | varDec                                   {$$ = $1;}
 /*function declartation */
+ | FUNCTION id '(' ')' '=' exp     {$$ = new ParentASTNode("function declaration", nodeType::FUNC_DEC, {$2, $6});}
  | FUNCTION id '(' tyFields ')' '=' exp     {$$ = new ParentASTNode("function declaration", nodeType::FUNC_DEC, {$2, $4, $7});}
  | FUNCTION id '(' tyFields ')' ':' typeId '=' exp {$$ = new ParentASTNode("function declaration", nodeType::FUNC_DEC, {$2, $4, $9, $7});}
 /*primitive declaration */

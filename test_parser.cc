@@ -38,7 +38,7 @@ TEST_CASE("Test Keywords shows up in ast", "[syntax]") {
     };
 
     const std::vector<std::string> statements = {
-        "nil", "id", "32", "\"string\"", "new id", "let in end"
+        "nil", "id", "32", "\"string\"", "new id", "let in end",
         "1+1", "1-1", "1*1", "1/1", "1=1", "1<>1", "1<1", "1>1",
         "1<=1", "1>=1", "1&1", "1|1", "id := 2", "if 1 then 2",
         "if 1 then 2 else 3", "while 4 do 5", "for i := 1 to 2 do 3", "break",
