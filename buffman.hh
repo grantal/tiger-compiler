@@ -10,6 +10,8 @@ pass it a file, it will switch to buffer on that file
 
 typedef struct yy_buffer_state* YY_BUFFER_STATE;
 
+namespace buffman {
+
 class Buffman {
 private:
     YY_BUFFER_STATE buff_;
@@ -20,3 +22,4 @@ public:
     ~Buffman();
 }; 
 
+} //namespace

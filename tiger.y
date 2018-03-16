@@ -1,7 +1,7 @@
 %{
 #include <iostream>
 #include "ast.hh"
-#include <cstring>
+#include <memory>
 
 int yylex();
 void yyerror (char const *s) {
@@ -48,7 +48,7 @@ control flow shift/reduce conflicts */
 %nonassoc OF
 
 %%
-program: exp         {programNode = std::shared_ptr<ParentASTNode>(new ParentASTNode("program", {$1}));}
+program: exp         {programNode = std::shared_ptr<ParentASTNode>(new ParentASTNode("program",nodeType::PROGRAM, {$1}));}
  | decs               
 ;
 
@@ -56,7 +56,7 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | INTLIT                      {$$ = new TokenASTNode(INTLIT, $1);}
  | STRINGLIT
 /* array and record creation */
- | ID '['exp']' OF exp
+ | ID '['exp']' OF exp         {}
  | ID '{' '}'
  | ID '{' recs '}'
 /* Objects creation */
@@ -92,9 +92,11 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | IF exp THEN exp
  | IF exp THEN exp ELSE exp
  | WHILE exp DO exp
- | FOR ID ASSIGNMENT TO exp DO exp
+ | FOR ID ASSIGNMENT exp TO exp DO exp
  | BREAK
+ | LET IN END
  | LET IN exps END
+ | LET decs IN END
  | LET decs IN exps END
 ;
 
