@@ -10,12 +10,10 @@ void yyerror (char const *s) {
 
 namespace tiger {
 /* global variable to store the result of the parser */
-std::shared_ptr<ASTNode> programNode;
+std::shared_ptr<ParentASTNode> programNode;
 }
 
 using namespace tiger;
-
-
 %}
 
 %union {

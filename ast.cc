@@ -14,7 +14,9 @@ ParentASTNode::~ParentASTNode(){
 ASTNode::string_t ParentASTNode::toStr() const {
     std::string retStr = desc_ + " {\n";
     std::for_each(children_.begin(), children_.end(), [&retStr](ASTptr c){
-        retStr += "\t" + c->toStr() + "\n";
+        if (c != nullptr) {
+            retStr += "\t" + c->toStr() + "\n";
+        }
     }); 
     return retStr + "}";
 }
