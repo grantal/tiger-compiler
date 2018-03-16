@@ -23,7 +23,7 @@ using namespace tiger;
   char *strVal;
 }
 
-%type<node> program id exp exps lValue decs dec ty classFields
+%type<node> program id typeId exp exps lValue decs dec ty tyFields classFields varDec
 
 %token<strVal> INTLIT STRINGLIT ID
 %token ENDL NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
@@ -54,17 +54,20 @@ program: exp         {programNode = std::shared_ptr<ParentASTNode>(new ParentAST
 
 /*Since id shows up so many places, we want it to be a node and not a string*/
 id: ID                         {$$ = new TokenASTNode(ID, $1);}
+;
 
+typeId: id                     {$$ = new ParentASTNode("type id",nodeType::TYPE_ID,{$1});} 
+;
 
 exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | INTLIT                      {$$ = new TokenASTNode(INTLIT, $1);}
  | STRINGLIT
 /* array and record creation */
- | id '['exp']' OF exp         {}
- | id '{' '}'
- | id '{' recs '}'
+ | id '['exp']' OF exp         {$$ = new ParentASTNode("Array", nodeType::ARRAY, {new ParentASTNode("type id",nodeType::TYPE_ID,{$1}), $3, $6});}
+ | typeId '{' '}'
+ | typeId '{' recs '}'
 /* Objects creation */
- | NEW id
+ | NEW typeId
 /* Variables, filed, elements of an array */
  | lValue
  | id
@@ -139,16 +142,16 @@ dec
  : TYPE id '=' ty                           {$$ = new ParentASTNode("type declation", nodeType::TYPE_DEC, {$2, $4});}
 /*class definition NOTE: the id of what it extends is the third child*/
  | CLASS id '{' classFields '}'             {$$ = new ParentASTNode("class declaration", nodeType::CLASS_DEC, {$2, $4});}
- | CLASS id EXTENDS id '{' classFields '}'  {$$ = new ParentASTNode("class declaration w/ extends", nodeType::CLASS_DEC, {$2, $6, $4});}
+ | CLASS id EXTENDS typeId '{' classFields '}'  {$$ = new ParentASTNode("class declaration w/ extends", nodeType::CLASS_DEC, {$2, $6, $4});}
 
 /*variable declaration */
- | varDec
+ | varDec                                   {$$ = $1;}
 /*function declartation */
- | FUNCTION id '(' tyFields ')' '=' exp
- | FUNCTION id '(' tyFields ')' ':' id '=' exp
+ | FUNCTION id '(' tyFields ')' '=' exp     {$$ = new ParentASTNode("class declaration", nodeType::CLASS_DEC, {$2, $4});}
+ | FUNCTION id '(' tyFields ')' ':' typeId '=' exp
 /*primitive declaration */
  | PRIMITIVE id '(' tyFields ')'
- | PRIMITIVE id '(' tyFields ')' ':' id
+ | PRIMITIVE id '(' tyFields ')' ':' typeId
 /*importing declarations*/
  | IMPORT STRINGLIT
 ; 
@@ -157,7 +160,7 @@ dec
 
 varDec
  : VAR id ASSIGNMENT exp
- | VAR id ':' id ASSIGNMENT exp
+ | VAR id ':' typeId ASSIGNMENT exp
 
 /*Departure: I cover the classfields = 0 case whereever classFields is used */
 classFields
@@ -169,21 +172,21 @@ classField
  : varDec
  | METHOD id '(' tyFields ')' '=' exp
  | METHOD id '(' ')' '=' exp
- | METHOD id '(' tyFields ')' ':' id '=' exp
- | METHOD id '(' ')' ':' id '=' exp
+ | METHOD id '(' tyFields ')' ':' typeId '=' exp
+ | METHOD id '(' ')' ':' typeId '=' exp
 
 ty
- : id
+ : typeId
  /*Record type definition.*/
  | '{' '}'
  | '{' tyFields '}'
  /*Array type definition. */
- | ARRAY OF id
+ | ARRAY OF typeId
  /*Class definition (canonical form). */
  | CLASS '{' '}'
  | CLASS '{' classFields '}'
- | CLASS EXTENDS id '{' '}'
- | CLASS EXTENDS id '{' classFields '}'
+ | CLASS EXTENDS typeId '{' '}'
+ | CLASS EXTENDS typeId '{' classFields '}'
 ;
 
 /*Departure: I coever the tyFields = 0 case wherever tyFields
@@ -192,8 +195,8 @@ ty
  that arose were due to lack of context.
  */
 tyFields
- : id ':' id
- | id ':' id ',' tyFields
+ : id ':' typeId
+ | id ':' typeId ',' tyFields
 ;
 
 
