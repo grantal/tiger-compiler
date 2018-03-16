@@ -23,7 +23,7 @@ using namespace tiger;
   char *strVal;
 }
 
-%type<node> program exp
+%type<node> program exp exps lValue decs dec ty classFields
 
 %token<strVal> INTLIT STRINGLIT ID
 %token ENDL NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
@@ -83,21 +83,21 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | exp EGREATER exp
  | exp ELESS exp
  | exp '&' exp
- | exp '|' exp
- | '(' exps ')'
+ | exp '|' exp                      {$$ = new ParentASTNode("or",nodeType::OR, {$1, $3});}
+ | '(' exps ')'                     {$$ = new ParentASTNode("sequence",nodeType::SEQUENCE, {$2});}
 /*Assignment */
- | lValue ASSIGNMENT exp
- | ID ASSIGNMENT exp
+ | lValue ASSIGNMENT exp            {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3});}
+ | ID ASSIGNMENT exp                {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3});}
 /*Control structures */
- | IF exp THEN exp
- | IF exp THEN exp ELSE exp
- | WHILE exp DO exp
- | FOR ID ASSIGNMENT exp TO exp DO exp
- | BREAK
- | LET IN END
- | LET IN exps END
- | LET decs IN END
- | LET decs IN exps END
+ | IF exp THEN exp                  {$$ = new ParentASTNode("if then",nodeType::IF_THEN, {$2, $4});}
+ | IF exp THEN exp ELSE exp         {$$ = new ParentASTNode("if then else",nodeType::IF_THEN, {$2, $4, $6});}
+ | WHILE exp DO exp                 {$$ = new ParentASTNode("while do",nodeType::WHILE_DO, {$2, $4});}
+ | FOR ID ASSIGNMENT exp TO exp DO exp {$$ = new ParentASTNode("for to do",nodeType::FOR_TO_DO, {$2, $4, $6, $8});}
+ | BREAK                            {$$ = new TokenASTNode(BREAK, "break");}
+ | LET IN END                       {$$ = new ParentASTNode("let in end", nodeType::LET_IN_END, {nullptr, nullptr});}  
+ | LET IN exps END                  {$$ = new ParentASTNode("let in end", nodeType::LET_IN_END, {nullptr, $3});}
+ | LET decs IN END                  {$$ = new ParentASTNode("let in end", nodeType::LET_IN_END, {$2, nullptr});}
+ | LET decs IN exps END             {$$ = new ParentASTNode("let in end", nodeType::LET_IN_END, {$2, $4});}
 ;
 
 /*=========HELPERS FOR EXP=============*/
@@ -127,15 +127,16 @@ exps
 
 /*Departure: I cover the decs = 0 case wherever decs is used */
 decs
- : dec
- | dec  decs
+ : dec                                      {$$ = new ParentASTNode("decs", nodeType::DECS, {$1});} 
+ | dec  decs                                {$$ = new ParentASTNode("decs", nodeType::DECS, {$1, $2});}
 ;
 
 dec
- : TYPE ID '=' ty
-/*class definition */
- | CLASS ID '{' classFields '}'
- | CLASS ID EXTENDS ID '{' classFields '}'
+ : TYPE ID '=' ty                           {$$ = new ParentASTNode("type declation", nodeType::TYPE_DEC, {$2, $4});}
+/*class definition NOTE: the id of what it extends is the third child*/
+ | CLASS ID '{' classFields '}'             {$$ = new ParentASTNode("class declaration", nodeType::CLASS_DEC, {$2, $4});}
+ | CLASS ID EXTENDS ID '{' classFields '}'  {$$ = new ParentASTNode("class declaration w/ extends", nodeType::CLASS_DEC, {$2, $6, $4});}
+
 /*variable declaration */
  | varDec
 /*function declartation */

@@ -38,13 +38,12 @@ enum class nodeType{
 	EQ_LESS, 		//tiger.y 84
 	AND, 			//tiger.y 85
 	OR, 			//tiger.y 86
-	EXPS, 			//tiger.y 87, 124-125 (? unsure)
+	SEQUENCE, 		//tiger.y 87, 124-125 (? unsure)
 	EXP_LIST,		//tiger.y 110-111
 	ASSINGMENT_, 	//tiger.y 89-90
 	IF_THEN, 		//tiger.y 92-93
 	WHILE_DO, 		//tiger.y 94
 	FOR_TO_DO, 		//tiger.y 95
-	BREAK_, 		//tiger.y 96
 	LET_IN_END, 	//tiger.y 97-100
 	DECS, 			//tiger.y 130-131
 	TYPE_DEC, 		//tiger.y 135
