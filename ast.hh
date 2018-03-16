@@ -58,6 +58,7 @@ enum class nodeType{
 	REC_TYPE, 		//tiger.y 173-174, 190-191
 	ARRAY_TYPE, 	//tiger.y 176
 	CLASS_TYPE, 	//tiger.y 178-181
+        TY_FIELDS               //tiger.y 202-203
 };
 
 ///////////////////////////////////////////////////////////////////////////////

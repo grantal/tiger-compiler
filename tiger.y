@@ -23,7 +23,7 @@ using namespace tiger;
   char *strVal;
 }
 
-%type<node> program id typeId exp exps lValue decs dec ty tyFields classFields varDec
+%type<node> program id typeId exp exps lValue decs dec ty tyFields classFields classField varDec
 
 %token<strVal> INTLIT STRINGLIT ID
 %token ENDL NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
@@ -147,13 +147,17 @@ dec
 /*variable declaration */
  | varDec                                   {$$ = $1;}
 /*function declartation */
- | FUNCTION id '(' tyFields ')' '=' exp     {$$ = new ParentASTNode("class declaration", nodeType::CLASS_DEC, {$2, $4});}
- | FUNCTION id '(' tyFields ')' ':' typeId '=' exp
+ | FUNCTION id '(' tyFields ')' '=' exp     {$$ = new ParentASTNode("function declaration", nodeType::FUNC_DEC, {$2, $4, $7});}
+ | FUNCTION id '(' tyFields ')' ':' typeId '=' exp {$$ = new ParentASTNode("function declaration", nodeType::FUNC_DEC, {$2, $4, $9, $7});}
+
 /*primitive declaration */
- | PRIMITIVE id '(' tyFields ')'
- | PRIMITIVE id '(' tyFields ')' ':' typeId
+ | PRIMITIVE id '(' tyFields ')'            {$$ = new ParentASTNode("primitive declaration", nodeType::PRIM_DEC, {$2, $4});}
+
+ | PRIMITIVE id '(' tyFields ')' ':' typeId {$$ = new ParentASTNode("primitive declaration", nodeType::PRIM_DEC, {$2, $4, $7});}
+
 /*importing declarations*/
- | IMPORT STRINGLIT
+ | IMPORT STRINGLIT                         {$$ = new ParentASTNode("import", nodeType::IMPORT_, {new TokenASTNode(STRINGLIT, $2)});}
+
 ; 
 
 /*helper rules for decs */
@@ -164,39 +168,40 @@ varDec
 
 /*Departure: I cover the classfields = 0 case whereever classFields is used */
 classFields
- : classField
- | classField classFields
+ : classField                               {$$ = new ParentASTNode("class fields", nodeType::CLASS_FIELDS, {$1});}
+
+ | classField classFields                   {$$ = new ParentASTNode("class fields", nodeType::CLASS_FIELDS, {$1, $2});}
 ;
 
 classField
- : varDec
- | METHOD id '(' tyFields ')' '=' exp
- | METHOD id '(' ')' '=' exp
- | METHOD id '(' tyFields ')' ':' typeId '=' exp
- | METHOD id '(' ')' ':' typeId '=' exp
+ : varDec                                   {$$ = new ParentASTNode("class field", nodeType::CLASS_FIELD, {$1});}
+ | METHOD id '(' tyFields ')' '=' exp       {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, $4, nullptr, $7});}
+
+ | METHOD id '(' ')' '=' exp                {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, nullptr, nullptr, $6});}
+ | METHOD id '(' tyFields ')' ':' typeId '=' exp {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, $4, $7, $9});}
+ | METHOD id '(' ')' ':' typeId '=' exp     {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, nullptr, $6, $8});}
 
 ty
- : typeId
+ : typeId                                   {$$ = $1;}
  /*Record type definition.*/
- | '{' '}'
- | '{' tyFields '}'
+ | '{' '}'                                  {$$ = new ParentASTNode("record type definition", nodeType::REC_TYPE, {});}
+ | '{' tyFields '}'                         {$$ = new ParentASTNode("record type definition", nodeType::REC_TYPE, {$2});}
  /*Array type definition. */
- | ARRAY OF typeId
+ | ARRAY OF typeId                          {$$ = new ParentASTNode("array type definition", nodeType::ARRAY_TYPE, {$3});}
  /*Class definition (canonical form). */
- | CLASS '{' '}'
- | CLASS '{' classFields '}'
- | CLASS EXTENDS typeId '{' '}'
- | CLASS EXTENDS typeId '{' classFields '}'
+ | CLASS '{' '}'                            {$$ = new ParentASTNode("class definition", nodeType::CLASS_TYPE, {});}
+ | CLASS '{' classFields '}'                {$$ = new ParentASTNode("class definition", nodeType::CLASS_TYPE, {$3});}
+ | CLASS EXTENDS typeId '{' '}'             {$$ = new ParentASTNode("class definition", nodeType::CLASS_TYPE, {nullptr, $3});}
+ | CLASS EXTENDS typeId '{' classFields '}' {$$ = new ParentASTNode("class definition", nodeType::CLASS_TYPE, {$5, $3});}
 ;
 
 /*Departure: I coever the tyFields = 0 case wherever tyFields
- is used. Further, type-id has been eleminated and 
- replaced with id where type-id was used since the conflicts
- that arose were due to lack of context.
+ is used. 
  */
 tyFields
- : id ':' typeId
- | id ':' typeId ',' tyFields
+ : id ':' typeId                           {$$ = new ParentASTNode("type fields", nodeType::TY_FIELDS, {$1, $3});}
+
+ | id ':' typeId ',' tyFields              {$$ = new ParentASTNode("type fields", nodeType::TY_FIELDS, {$1, $3, $5});}
 ;
 
 
