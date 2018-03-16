@@ -23,7 +23,7 @@ using namespace tiger;
   char *strVal;
 }
 
-%type<node> program exp exps lValue decs dec ty classFields
+%type<node> program id exp exps lValue decs dec ty classFields
 
 %token<strVal> INTLIT STRINGLIT ID
 %token ENDL NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
@@ -52,21 +52,25 @@ program: exp         {programNode = std::shared_ptr<ParentASTNode>(new ParentAST
  | decs               
 ;
 
+/*Since id shows up so many places, we want it to be a node and not a string*/
+id: ID                         {$$ = new TokenASTNode(ID, $1);}
+
+
 exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | INTLIT                      {$$ = new TokenASTNode(INTLIT, $1);}
  | STRINGLIT
 /* array and record creation */
- | ID '['exp']' OF exp         {}
- | ID '{' '}'
- | ID '{' recs '}'
+ | id '['exp']' OF exp         {}
+ | id '{' '}'
+ | id '{' recs '}'
 /* Objects creation */
- | NEW ID
+ | NEW id
 /* Variables, filed, elements of an array */
  | lValue
- | ID
+ | id
 /* function call */
- | ID '(' ')'
- | ID '(' expList ')'
+ | id '(' ')'
+ | id '(' expList ')'
 /* method call */
  | lValue '(' ')'
  | lValue '(' expList ')'
@@ -87,12 +91,12 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | '(' exps ')'                     {$$ = new ParentASTNode("sequence",nodeType::SEQUENCE, {$2});}
 /*Assignment */
  | lValue ASSIGNMENT exp            {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3});}
- | ID ASSIGNMENT exp                {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3});}
+ | id ASSIGNMENT exp                {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3});}
 /*Control structures */
  | IF exp THEN exp                  {$$ = new ParentASTNode("if then",nodeType::IF_THEN, {$2, $4});}
  | IF exp THEN exp ELSE exp         {$$ = new ParentASTNode("if then else",nodeType::IF_THEN, {$2, $4, $6});}
  | WHILE exp DO exp                 {$$ = new ParentASTNode("while do",nodeType::WHILE_DO, {$2, $4});}
- | FOR ID ASSIGNMENT exp TO exp DO exp {$$ = new ParentASTNode("for to do",nodeType::FOR_TO_DO, {$2, $4, $6, $8});}
+ | FOR id ASSIGNMENT exp TO exp DO exp {$$ = new ParentASTNode("for to do",nodeType::FOR_TO_DO, {$2, $4, $6, $8});}
  | BREAK                            {$$ = new TokenASTNode(BREAK, "break");}
  | LET IN END                       {$$ = new ParentASTNode("let in end", nodeType::LET_IN_END, {nullptr, nullptr});}  
  | LET IN exps END                  {$$ = new ParentASTNode("let in end", nodeType::LET_IN_END, {nullptr, $3});}
@@ -102,8 +106,8 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
 
 /*=========HELPERS FOR EXP=============*/
 recs
- : ID '=' exp
- | ID '=' exp ',' recs
+ : id '=' exp
+ | id '=' exp ',' recs
 ;
 /* exps separated by commas */
 expList
@@ -111,12 +115,12 @@ expList
  | exp ',' expList
 ;
 
-/* Departure: I cover the single ID case above and the ID > 1 case here */
+/* Departure: I cover the single id case above and the id > 1 case here */
 lValue 
- : ID '.' ID
- | lValue '.' ID
+ : id '.' id
+ | lValue '.' id
  | lValue '[' exp ']'
- | ID '[' exp ']'
+ | id '[' exp ']'
 ;
 
 /* exps separated by semicolons */
@@ -132,19 +136,19 @@ decs
 ;
 
 dec
- : TYPE ID '=' ty                           {$$ = new ParentASTNode("type declation", nodeType::TYPE_DEC, {$2, $4});}
+ : TYPE id '=' ty                           {$$ = new ParentASTNode("type declation", nodeType::TYPE_DEC, {$2, $4});}
 /*class definition NOTE: the id of what it extends is the third child*/
- | CLASS ID '{' classFields '}'             {$$ = new ParentASTNode("class declaration", nodeType::CLASS_DEC, {$2, $4});}
- | CLASS ID EXTENDS ID '{' classFields '}'  {$$ = new ParentASTNode("class declaration w/ extends", nodeType::CLASS_DEC, {$2, $6, $4});}
+ | CLASS id '{' classFields '}'             {$$ = new ParentASTNode("class declaration", nodeType::CLASS_DEC, {$2, $4});}
+ | CLASS id EXTENDS id '{' classFields '}'  {$$ = new ParentASTNode("class declaration w/ extends", nodeType::CLASS_DEC, {$2, $6, $4});}
 
 /*variable declaration */
  | varDec
 /*function declartation */
- | FUNCTION ID '(' tyFields ')' '=' exp
- | FUNCTION ID '(' tyFields ')' ':' ID '=' exp
+ | FUNCTION id '(' tyFields ')' '=' exp
+ | FUNCTION id '(' tyFields ')' ':' id '=' exp
 /*primitive declaration */
- | PRIMITIVE ID '(' tyFields ')'
- | PRIMITIVE ID '(' tyFields ')' ':' ID
+ | PRIMITIVE id '(' tyFields ')'
+ | PRIMITIVE id '(' tyFields ')' ':' id
 /*importing declarations*/
  | IMPORT STRINGLIT
 ; 
@@ -152,8 +156,8 @@ dec
 /*helper rules for decs */
 
 varDec
- : VAR ID ASSIGNMENT exp
- | VAR ID ':' ID ASSIGNMENT exp
+ : VAR id ASSIGNMENT exp
+ | VAR id ':' id ASSIGNMENT exp
 
 /*Departure: I cover the classfields = 0 case whereever classFields is used */
 classFields
@@ -163,33 +167,33 @@ classFields
 
 classField
  : varDec
- | METHOD ID '(' tyFields ')' '=' exp
- | METHOD ID '(' ')' '=' exp
- | METHOD ID '(' tyFields ')' ':' ID '=' exp
- | METHOD ID '(' ')' ':' ID '=' exp
+ | METHOD id '(' tyFields ')' '=' exp
+ | METHOD id '(' ')' '=' exp
+ | METHOD id '(' tyFields ')' ':' id '=' exp
+ | METHOD id '(' ')' ':' id '=' exp
 
 ty
- : ID
+ : id
  /*Record type definition.*/
  | '{' '}'
  | '{' tyFields '}'
  /*Array type definition. */
- | ARRAY OF ID
+ | ARRAY OF id
  /*Class definition (canonical form). */
  | CLASS '{' '}'
  | CLASS '{' classFields '}'
- | CLASS EXTENDS ID '{' '}'
- | CLASS EXTENDS ID '{' classFields '}'
+ | CLASS EXTENDS id '{' '}'
+ | CLASS EXTENDS id '{' classFields '}'
 ;
 
 /*Departure: I coever the tyFields = 0 case wherever tyFields
  is used. Further, type-id has been eleminated and 
- replaced with ID where type-ID was used since the conflicts
+ replaced with id where type-id was used since the conflicts
  that arose were due to lack of context.
  */
 tyFields
- : ID ':' ID
- | ID ':' ID ',' tyFields
+ : id ':' id
+ | id ':' id ',' tyFields
 ;
 
 

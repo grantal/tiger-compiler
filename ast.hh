@@ -40,7 +40,7 @@ enum class nodeType{
 	OR, 			//tiger.y 86
 	SEQUENCE, 		//tiger.y 87, 124-125 (? unsure)
 	EXP_LIST,		//tiger.y 110-111
-	ASSINGMENT_, 	//tiger.y 89-90
+	ASSIGNMENT_, 	//tiger.y 89-90
 	IF_THEN, 		//tiger.y 92-93
 	WHILE_DO, 		//tiger.y 94
 	FOR_TO_DO, 		//tiger.y 95
