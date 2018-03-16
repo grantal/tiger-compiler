@@ -177,6 +177,19 @@ TEST_CASE("Test structure of some satements", "[syntax]") {
             REQUIRE(mainNode->_getChild(2)->toStr().find("2") == std::string::npos);
 
     }
+    SECTION("let/in") {
+            auto b = buffman::Buffman("let x := 1 in 3 end");
+            REQUIRE(yyparse() == 0);
+            ParentASTNode* mainNode = (ParentASTNode*)programNode->_getChild(0);
+            // condition
+            REQUIRE(mainNode->_getChild(0)->toStr().find("x") != std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("1") != std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("3") == std::string::npos);
+            // action
+            REQUIRE(mainNode->_getChild(1)->toStr().find("3") != std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("1") == std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("x") == std::string::npos);
+    }
 }
 
 TEST_CASE("Test Binary Ops structure", "[syntax]") {

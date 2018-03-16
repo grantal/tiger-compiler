@@ -19,10 +19,11 @@ enum class nodeType{
 	PROGRAM,		//tiger.y 51-52
 	ARRAY, 			//tiger.y 59
 	EMPTY_REC, 		//tiger.y 60,
-	NEW_REC, 		//tiger.y 60-61
+	RECORD, 		//tiger.y 60-61
 	REC_VAL, 		//tiger.y 105 - 106
-	NEW_ID, 		//tiger.y 63
-	REF, 			//tiger.y (reference) 65-66, 116-119
+	OBJECT, 		//tiger.y 63
+	REFERENCE, 		//tiger.y (reference) 65-66, 116-119
+	ARRAY_REF,
 	CALL_FUNC,		//tiger.y 68-69
 	CALL_METHOD,	//tiger.y 71-72
 	NEGATE, 		//tiger.y 74
@@ -38,13 +39,12 @@ enum class nodeType{
 	EQ_LESS, 		//tiger.y 84
 	AND, 			//tiger.y 85
 	OR, 			//tiger.y 86
-	EXPS, 			//tiger.y 87, 124-125 (? unsure)
+	SEQUENCE, 		//tiger.y 87, 124-125 (? unsure)
 	EXP_LIST,		//tiger.y 110-111
-	ASSINGMENT_, 	//tiger.y 89-90
+	ASSIGNMENT_, 	//tiger.y 89-90
 	IF_THEN, 		//tiger.y 92-93
 	WHILE_DO, 		//tiger.y 94
 	FOR_TO_DO, 		//tiger.y 95
-	BREAK_, 		//tiger.y 96
 	LET_IN_END, 	//tiger.y 97-100
 	DECS, 			//tiger.y 130-131
 	TYPE_DEC, 		//tiger.y 135
@@ -59,6 +59,7 @@ enum class nodeType{
 	REC_TYPE, 		//tiger.y 173-174, 190-191
 	ARRAY_TYPE, 	//tiger.y 176
 	CLASS_TYPE, 	//tiger.y 178-181
+        TY_FIELDS               //tiger.y 202-203
 };
 
 ///////////////////////////////////////////////////////////////////////////////
