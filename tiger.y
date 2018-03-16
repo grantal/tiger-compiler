@@ -163,8 +163,9 @@ dec
 /*helper rules for decs */
 
 varDec
- : VAR id ASSIGNMENT exp
- | VAR id ':' typeId ASSIGNMENT exp
+ : VAR id ASSIGNMENT exp                    {$$ = new ParentASTNode("variable declaration", nodeType::VAR_DEC, {$2, $4});}
+ | VAR id ':' typeId ASSIGNMENT exp         {$$ = new ParentASTNode("variable declaration", nodeType::VAR_DEC, {$2, $6, $4});}
+
 
 /*Departure: I cover the classfields = 0 case whereever classFields is used */
 classFields
