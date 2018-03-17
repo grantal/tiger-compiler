@@ -21,7 +21,7 @@ using namespace tiger;
 %type<node> program id typeId exp exps expList lValue decs dec ty tyFields classFields classField varDec recs
 
 %token<strVal> INTLIT STRINGLIT ID
-%token ENDL NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
+%token NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
 %token IF THEN ELSE WHILE FOR TO DO LET IN END BREAK
 %token CLASS EXTENDS PRIMITIVE IMPORT METHOD
 %token ERROR NOTEQUAL ELESS EGREATER
