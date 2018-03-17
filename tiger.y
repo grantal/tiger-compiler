@@ -4,9 +4,7 @@
 #include <memory>
 
 int yylex();
-void yyerror (char const *s) {
-   std::cerr << s << std::endl;
-}
+void yyerror (char const *s);
 namespace tiger {
 /* global variable to store the result of the parser */
 std::shared_ptr<ParentASTNode> programNode;
@@ -17,6 +15,8 @@ using namespace tiger;
   tiger::ASTNode::ASTptr node;
   char *strVal;
 }
+
+%locations
 
 %type<node> program id typeId exp exps expList lValue decs dec ty tyFields classFields classField varDec recs
 
@@ -181,3 +181,9 @@ tyFields :                                 {$$ = new ParentASTNode("type fields"
 
 
 %%
+void yyerror (char const *s) {
+    if(yylloc.first_line) {
+        std::cerr << "Error at " << yylloc.first_line << "," << yylloc.first_column << ": ";
+    }
+    std::cerr << s << std::endl;
+}
