@@ -4,6 +4,7 @@
 #include <memory>
 
 int yylex();
+extern int yylineno;
 void yyerror (char const *s);
 namespace tiger {
 /* global variable to store the result of the parser */
@@ -182,8 +183,6 @@ tyFields :                                 {$$ = new ParentASTNode("type fields"
 
 %%
 void yyerror (char const *s) {
-    if(yylloc.first_line) {
-        std::cerr << "Error at " << yylloc.first_line << "," << yylloc.first_column << ": ";
-    }
+    std::cerr << "Error at line " << yylineno << ": "; 
     std::cerr << s << std::endl;
 }

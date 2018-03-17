@@ -223,7 +223,7 @@ TEST_CASE("Test Binary Ops structure", "[syntax]") {
 }
     
 /* These next few tests will be reading from files
-All of these files are from:
+Some of these files are from:
 https://www.cs.princeton.edu/~appel/modern/testcases/
 */
 TEST_CASE("make sure real file test1.tig parses correctly","[syntax]") {
@@ -242,6 +242,12 @@ TEST_CASE("make sure real file test1.tig parses correctly","[syntax]") {
     yyin = fopen("tiger-programs/test1.tig", "r");
     auto b = buffman::Buffman(yyin);
     REQUIRE(yyparse() == 0);
+    fclose(yyin);
+}
+TEST_CASE("throw errors correctly","[syntax]") {
+    yyin = fopen("tiger-programs/errorTest.tig", "r");
+    auto b = buffman::Buffman(yyin);
+    REQUIRE(yyparse() == 1);
     fclose(yyin);
 }
 

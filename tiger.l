@@ -5,7 +5,7 @@
 	int commentDepth = 0;
         extern YYSTYPE yylval;
 %}
-
+%option yylineno
 %option noyywrap
 %option nounistd
 %x commentState
