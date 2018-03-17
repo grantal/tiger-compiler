@@ -38,7 +38,7 @@ TEST_CASE("Test Keywords shows up in ast", "[syntax]") {
     };
 
     const std::vector<std::string> statements = {
-        "nil", "id", "32", "\"string\"", "new id", "let in end"
+        "nil", "id", "32", "\"string\"", "new id", "let in end",
         "1+1", "1-1", "1*1", "1/1", "1=1", "1<>1", "1<1", "1>1",
         "1<=1", "1>=1", "1&1", "1|1", "id := 2", "if 1 then 2",
         "if 1 then 2 else 3", "while 4 do 5", "for i := 1 to 2 do 3", "break",
@@ -57,21 +57,21 @@ TEST_CASE("Test Keywords shows up in ast", "[syntax]") {
 TEST_CASE("Test structure of some satements", "[syntax]") {
 
     SECTION("array creation") {
-            auto b = buffman::Buffman("id [1] of 2");
+            auto b = buffman::Buffman("id [\"length\"] of \"init\"");
             REQUIRE(yyparse() == 0); 
             ParentASTNode* arrayCreate = (ParentASTNode*)programNode->_getChild(0);
             // make sure ID child is good
             REQUIRE(arrayCreate->_getChild(0)->toStr().find("id") != std::string::npos);
-            REQUIRE(arrayCreate->_getChild(0)->toStr().find("1") == std::string::npos);
-            REQUIRE(arrayCreate->_getChild(0)->toStr().find("2") == std::string::npos);
+            REQUIRE(arrayCreate->_getChild(0)->toStr().find("length") == std::string::npos);
+            REQUIRE(arrayCreate->_getChild(0)->toStr().find("init") == std::string::npos);
             // make sure length child is good
             REQUIRE(arrayCreate->_getChild(1)->toStr().find("id") == std::string::npos);
-            REQUIRE(arrayCreate->_getChild(1)->toStr().find("1") != std::string::npos);
-            REQUIRE(arrayCreate->_getChild(1)->toStr().find("2") == std::string::npos);
+            REQUIRE(arrayCreate->_getChild(1)->toStr().find("length") != std::string::npos);
+            REQUIRE(arrayCreate->_getChild(1)->toStr().find("init") == std::string::npos);
             // make sure initializer child is good
             REQUIRE(arrayCreate->_getChild(2)->toStr().find("id") == std::string::npos);
-            REQUIRE(arrayCreate->_getChild(2)->toStr().find("1") == std::string::npos);
-            REQUIRE(arrayCreate->_getChild(2)->toStr().find("2") != std::string::npos);
+            REQUIRE(arrayCreate->_getChild(2)->toStr().find("length") == std::string::npos);
+            REQUIRE(arrayCreate->_getChild(2)->toStr().find("init") != std::string::npos);
     } 
 
     SECTION("object creation") {
@@ -98,7 +98,7 @@ TEST_CASE("Test structure of some satements", "[syntax]") {
             auto b = buffman::Buffman("-1");
             REQUIRE(yyparse() == 0);
             ParentASTNode* mainNode = (ParentASTNode*)programNode->_getChild(0);
-            REQUIRE(mainNode->toStr().find("-") != std::string::npos);
+            REQUIRE(mainNode->getNodeType() == nodeType::NEGATE);
             REQUIRE(mainNode->_getChild(0)->toStr().find("1") != std::string::npos);
             REQUIRE(mainNode->_getChild(0)->toStr().find("-") == std::string::npos);
     }
@@ -114,43 +114,43 @@ TEST_CASE("Test structure of some satements", "[syntax]") {
             REQUIRE(mainNode->_getChild(1)->toStr().find("id") == std::string::npos);
     }
     SECTION("if then") {
-            auto b = buffman::Buffman("if 1 then 2");
+            auto b = buffman::Buffman("if \"cond\" then \"action\"");
             REQUIRE(yyparse() == 0);
             ParentASTNode* mainNode = (ParentASTNode*)programNode->_getChild(0);
             // condition
-            REQUIRE(mainNode->_getChild(0)->toStr().find("1") != std::string::npos);
-            REQUIRE(mainNode->_getChild(0)->toStr().find("2") == std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("cond") != std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("action") == std::string::npos);
             // action
-            REQUIRE(mainNode->_getChild(1)->toStr().find("2") != std::string::npos);
-            REQUIRE(mainNode->_getChild(1)->toStr().find("1") == std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("action") != std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("cond") == std::string::npos);
     }
     SECTION("if then else") {
-            auto b = buffman::Buffman("if 1 then 2 else 3");
+            auto b = buffman::Buffman("if \"cond\" then \"action\" else \"other\"");
             REQUIRE(yyparse() == 0);
             ParentASTNode* mainNode = (ParentASTNode*)programNode->_getChild(0);
             // condition
-            REQUIRE(mainNode->_getChild(0)->toStr().find("1") != std::string::npos);
-            REQUIRE(mainNode->_getChild(0)->toStr().find("2") == std::string::npos);
-            REQUIRE(mainNode->_getChild(0)->toStr().find("3") == std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("cond") != std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("action") == std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("other") == std::string::npos);
             // action
-            REQUIRE(mainNode->_getChild(1)->toStr().find("2") != std::string::npos);
-            REQUIRE(mainNode->_getChild(1)->toStr().find("1") == std::string::npos);
-            REQUIRE(mainNode->_getChild(1)->toStr().find("3") == std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("action") != std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("cond") == std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("other") == std::string::npos);
             // else
-            REQUIRE(mainNode->_getChild(2)->toStr().find("3") != std::string::npos);
-            REQUIRE(mainNode->_getChild(2)->toStr().find("1") == std::string::npos);
-            REQUIRE(mainNode->_getChild(2)->toStr().find("2") == std::string::npos);
+            REQUIRE(mainNode->_getChild(2)->toStr().find("other") != std::string::npos);
+            REQUIRE(mainNode->_getChild(2)->toStr().find("cond") == std::string::npos);
+            REQUIRE(mainNode->_getChild(2)->toStr().find("action") == std::string::npos);
     }
     SECTION("while loop") {
-            auto b = buffman::Buffman("while 1 do 2");
+            auto b = buffman::Buffman("while \"cond\" do \"action\"");
             REQUIRE(yyparse() == 0);
             ParentASTNode* mainNode = (ParentASTNode*)programNode->_getChild(0);
             // condition
-            REQUIRE(mainNode->_getChild(0)->toStr().find("1") != std::string::npos);
-            REQUIRE(mainNode->_getChild(0)->toStr().find("2") == std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("cond") != std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("action") == std::string::npos);
             // action
-            REQUIRE(mainNode->_getChild(1)->toStr().find("2") != std::string::npos);
-            REQUIRE(mainNode->_getChild(1)->toStr().find("1") == std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("action") != std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("cond") == std::string::npos);
     }
     SECTION("break") {
             auto b = buffman::Buffman("while 1 do break");
@@ -159,26 +159,33 @@ TEST_CASE("Test structure of some satements", "[syntax]") {
             REQUIRE(mainNode->_getChild(1)->toStr().find("break") != std::string::npos);
     }
     SECTION("for loop") {
-            auto b = buffman::Buffman("for i := 0 to 2 do 3");
+            auto b = buffman::Buffman("for iter := \"start\" to \"end\" do \"action\"");
             REQUIRE(yyparse() == 0);
             ParentASTNode* mainNode = (ParentASTNode*)programNode->_getChild(0);
-            // start
-            REQUIRE(mainNode->_getChild(0)->toStr().find("i") != std::string::npos);
-            REQUIRE(mainNode->_getChild(0)->toStr().find("0") != std::string::npos);
-            REQUIRE(mainNode->_getChild(0)->toStr().find("2") == std::string::npos);
-            REQUIRE(mainNode->_getChild(0)->toStr().find("3") == std::string::npos);
+            // iterator variable
+            REQUIRE(mainNode->_getChild(0)->toStr().find("iter") != std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("start") == std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("end") == std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("action") == std::string::npos);
+            // start number
+            REQUIRE(mainNode->_getChild(1)->toStr().find("start") != std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("end") == std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("action") == std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("iter") == std::string::npos);
             // end number
-            REQUIRE(mainNode->_getChild(1)->toStr().find("2") != std::string::npos);
-            REQUIRE(mainNode->_getChild(1)->toStr().find("1") == std::string::npos);
-            REQUIRE(mainNode->_getChild(1)->toStr().find("3") == std::string::npos);
+            REQUIRE(mainNode->_getChild(2)->toStr().find("end") != std::string::npos);
+            REQUIRE(mainNode->_getChild(2)->toStr().find("start") == std::string::npos);
+            REQUIRE(mainNode->_getChild(2)->toStr().find("action") == std::string::npos);
+            REQUIRE(mainNode->_getChild(2)->toStr().find("iter") == std::string::npos);
             // action
-            REQUIRE(mainNode->_getChild(2)->toStr().find("3") != std::string::npos);
-            REQUIRE(mainNode->_getChild(2)->toStr().find("1") == std::string::npos);
-            REQUIRE(mainNode->_getChild(2)->toStr().find("2") == std::string::npos);
+            REQUIRE(mainNode->_getChild(3)->toStr().find("action") != std::string::npos);
+            REQUIRE(mainNode->_getChild(3)->toStr().find("start") == std::string::npos);
+            REQUIRE(mainNode->_getChild(3)->toStr().find("end") == std::string::npos);
+            REQUIRE(mainNode->_getChild(3)->toStr().find("iter") == std::string::npos);
 
     }
     SECTION("let/in") {
-            auto b = buffman::Buffman("let x := 1 in 3 end");
+            auto b = buffman::Buffman("let var x := 1 in 3 end");
             REQUIRE(yyparse() == 0);
             ParentASTNode* mainNode = (ParentASTNode*)programNode->_getChild(0);
             // condition
@@ -198,17 +205,17 @@ TEST_CASE("Test Binary Ops structure", "[syntax]") {
     };
     for(auto i=0; i < static_cast<int>(binOps.size());++i){
         SECTION("Test for bin op \"" + binOps[i] +"\""){
-            auto b = buffman::Buffman("1" + binOps[i] + "2");
+            auto b = buffman::Buffman("\"operand1\"" + binOps[i] + "\"operand2\"");
             REQUIRE(yyparse() == 0);
             ParentASTNode* mainNode = (ParentASTNode*)programNode->_getChild(0);
             REQUIRE(mainNode->toStr().find(binOps[i]) != std::string::npos);
             // make sure left operand is good
-            REQUIRE(mainNode->_getChild(0)->toStr().find("1") != std::string::npos);
-            REQUIRE(mainNode->_getChild(0)->toStr().find("2") == std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("operand1") != std::string::npos);
+            REQUIRE(mainNode->_getChild(0)->toStr().find("operand2") == std::string::npos);
             REQUIRE(mainNode->_getChild(0)->toStr().find(binOps[i]) == std::string::npos);
             // make sure right operand is good
-            REQUIRE(mainNode->_getChild(1)->toStr().find("2") != std::string::npos);
-            REQUIRE(mainNode->_getChild(1)->toStr().find("1") == std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("operand2") != std::string::npos);
+            REQUIRE(mainNode->_getChild(1)->toStr().find("operand1") == std::string::npos);
             REQUIRE(mainNode->_getChild(0)->toStr().find(binOps[i]) == std::string::npos);
         }
     }
@@ -216,13 +223,57 @@ TEST_CASE("Test Binary Ops structure", "[syntax]") {
 }
     
 /* These next few tests will be reading from files
-All of these files are from:
+Some of these files are from:
 https://www.cs.princeton.edu/~appel/modern/testcases/
 */
 TEST_CASE("make sure real file test1.tig parses correctly","[syntax]") {
+    SECTION("type arrtype = array of int") {
+        auto b = buffman::Buffman("type arrtype = array of int");
+        REQUIRE(yyparse() == 0);
+    }
+    SECTION("var arr1:arrtype := arrtype [10] of 0") {
+        auto b = buffman::Buffman("var arr1:arrtype := arrtype [10] of 0");
+        REQUIRE(yyparse() == 0);
+    }
+    SECTION("arr1") {
+        auto b = buffman::Buffman("arr1");
+        REQUIRE(yyparse() == 0);
+    }
     yyin = fopen("tiger-programs/test1.tig", "r");
     auto b = buffman::Buffman(yyin);
     REQUIRE(yyparse() == 0);
+    fclose(yyin);
+}
+TEST_CASE("make sure real file test2.tig parses correctly","[syntax]") {
+    yyin = fopen("tiger-programs/test2.tig", "r");
+    auto b = buffman::Buffman(yyin);
+    REQUIRE(yyparse() == 0);
+    fclose(yyin);
+}
+TEST_CASE("make sure real file test3.tig parses correctly","[syntax]") {
+    yyin = fopen("tiger-programs/test3.tig", "r");
+    auto b = buffman::Buffman(yyin);
+    REQUIRE(yyparse() == 0);
+    fclose(yyin);
+}
+TEST_CASE("make sure newline_in_string.tig errors","[syntax]") {
+    std::stringstream buffer;
+    std::streambuf * old = std::cerr.rdbuf(buffer.rdbuf());
+    yyin = fopen("tiger-programs/newline_in_string.tig", "r");
+    auto b = buffman::Buffman(yyin);
+    REQUIRE(yyparse() == 1);
+    std::cerr.rdbuf(old);
+    fclose(yyin);
+}
+TEST_CASE("throw errors correctly","[syntax]") {
+    std::stringstream buffer;
+    std::streambuf * old = std::cerr.rdbuf(buffer.rdbuf());
+    yyin = fopen("tiger-programs/errorTest.tig", "r");
+    auto b = buffman::Buffman(yyin);
+    REQUIRE(yyparse() == 1);
+    // error should be on line 6
+    REQUIRE(buffer.str().find("6") != std::string::npos);
+    std::cerr.rdbuf(old);
     fclose(yyin);
 }
 

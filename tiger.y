@@ -4,9 +4,8 @@
 #include <memory>
 
 int yylex();
-void yyerror (char const *s) {
-   std::cerr << s << std::endl;
-}
+extern int yylineno;
+void yyerror (char const *s);
 namespace tiger {
 /* global variable to store the result of the parser */
 std::shared_ptr<ParentASTNode> programNode;
@@ -18,10 +17,12 @@ using namespace tiger;
   char *strVal;
 }
 
+%locations
+
 %type<node> program id typeId exp exps expList lValue decs dec ty tyFields classFields classField varDec recs
 
 %token<strVal> INTLIT STRINGLIT ID
-%token ENDL NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
+%token NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
 %token IF THEN ELSE WHILE FOR TO DO LET IN END BREAK
 %token CLASS EXTENDS PRIMITIVE IMPORT METHOD
 %token ERROR NOTEQUAL ELESS EGREATER
@@ -59,7 +60,7 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | typeId '{' '}'              {$$ = new ParentASTNode("Record", nodeType::RECORD,{$1,nullptr});}
  | typeId '{' recs '}'         {$$ = new ParentASTNode("Record", nodeType::RECORD,{$1,$3});}
 /* Objects creation */
- | NEW typeId                  {$$ = new ParentASTNode("Object", nodeType::OBJECT, {$2,nullptr});}
+ | NEW typeId                  {$$ = new ParentASTNode("new Object", nodeType::OBJECT, {$2,nullptr});}
 /* Variables, filed, elements of an array */
  | lValue                      {$$ = new ParentASTNode("Reference", nodeType::REFERENCE, {$1,nullptr});}
  | id                          {$$ = new ParentASTNode("Reference", nodeType::REFERENCE, {$1,nullptr});}
@@ -71,18 +72,18 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | lValue '(' expList ')'      {$$ = new ParentASTNode("Call Method", nodeType::CALL_METHOD,{$1,$3});}
 /* Operations */
  | '-' exp                     {$$ = new ParentASTNode("Negate", nodeType::NEGATE,{$2});}
- | exp '+' exp                 {$$ = new ParentASTNode("Add", nodeType::ADD,{$1,$3});}
- | exp '-' exp                 {$$ = new ParentASTNode("Subtract", nodeType::SUB,{$1,$3});}
- | exp '*' exp                 {$$ = new ParentASTNode("Mulitply", nodeType::MULT,{$1,$3});}
- | exp '/' exp                 {$$ = new ParentASTNode("Divide", nodeType::DIV,{$1,$3});}
- | exp '=' exp                 {$$ = new ParentASTNode("Equal", nodeType::EQUAL,{$1,$3});}
- | exp NOTEQUAL exp            {$$ = new ParentASTNode("Not Equal", nodeType::NOT_EQUAL,{$1,$3});}
- | exp '>' exp                 {$$ = new ParentASTNode("Greater", nodeType::GREATER,{$1,$3});}
- | exp '<' exp                 {$$ = new ParentASTNode("Lesser", nodeType::LESSER,{$1,$3});}
- | exp EGREATER exp            {$$ = new ParentASTNode("Equal or Greater", nodeType::EQ_GREATER,{$1,$3});}
- | exp ELESS exp               {$$ = new ParentASTNode("Equal or Less", nodeType::EQ_LESS,{$1,$3});}
- | exp '&' exp                 {$$ = new ParentASTNode("And", nodeType::AND,{$1,$3});}
- | exp '|' exp                      {$$ = new ParentASTNode("or",nodeType::OR, {$1, $3});}
+ | exp '+' exp                 {$$ = new ParentASTNode("Add (+)", nodeType::ADD,{$1,$3});}
+ | exp '-' exp                 {$$ = new ParentASTNode("Subtract (-)", nodeType::SUB,{$1,$3});}
+ | exp '*' exp                 {$$ = new ParentASTNode("Mulitply (*)", nodeType::MULT,{$1,$3});}
+ | exp '/' exp                 {$$ = new ParentASTNode("Divide (/)", nodeType::DIV,{$1,$3});}
+ | exp '=' exp                 {$$ = new ParentASTNode("Equal (=)", nodeType::EQUAL,{$1,$3});}
+ | exp NOTEQUAL exp            {$$ = new ParentASTNode("Not Equal (<>)", nodeType::NOT_EQUAL,{$1,$3});}
+ | exp '>' exp                 {$$ = new ParentASTNode("Greater (>)", nodeType::GREATER,{$1,$3});}
+ | exp '<' exp                 {$$ = new ParentASTNode("Lesser (<)", nodeType::LESSER,{$1,$3});}
+ | exp EGREATER exp            {$$ = new ParentASTNode("Equal or Greater (>=)", nodeType::EQ_GREATER,{$1,$3});}
+ | exp ELESS exp               {$$ = new ParentASTNode("Equal or Less (<=)", nodeType::EQ_LESS,{$1,$3});}
+ | exp '&' exp                 {$$ = new ParentASTNode("And (&)", nodeType::AND,{$1,$3});}
+ | exp '|' exp                      {$$ = new ParentASTNode("or (|)",nodeType::OR, {$1, $3});}
  | '(' exps ')'                     {$$ = new ParentASTNode("sequence",nodeType::SEQUENCE, {$2});}
 /*Assignment */
  | lValue ASSIGNMENT exp            {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3});}
@@ -129,6 +130,7 @@ decs
 dec
  : TYPE id '=' ty                           {$$ = new ParentASTNode("type declation", nodeType::TYPE_DEC, {$2, $4});}
 /*class definition NOTE: the id of what it extends is the third child*/
+ | CLASS id '{' '}'                         {$$ = new ParentASTNode("class declaration", nodeType::CLASS_DEC, {$2});}
  | CLASS id '{' classFields '}'             {$$ = new ParentASTNode("class declaration", nodeType::CLASS_DEC, {$2, $4});}
  | CLASS id EXTENDS typeId '{' classFields '}'  {$$ = new ParentASTNode("class declaration w/ extends", nodeType::CLASS_DEC, {$2, $6, $4});}
 /*variable declaration */
@@ -148,7 +150,6 @@ varDec
  : VAR id ASSIGNMENT exp                    {$$ = new ParentASTNode("variable declaration", nodeType::VAR_DEC, {$2, $4});}
  | VAR id ':' typeId ASSIGNMENT exp         {$$ = new ParentASTNode("variable declaration", nodeType::VAR_DEC, {$2, $6, $4});}
 
-/*Departure: I cover the classfields = 0 case whereever classFields is used */
 classFields
  : classField                               {$$ = new ParentASTNode("class fields", nodeType::CLASS_FIELDS, {$1});}
 
@@ -158,14 +159,11 @@ classField
  : varDec                                   {$$ = new ParentASTNode("class field", nodeType::CLASS_FIELD, {$1});}
  | METHOD id '(' tyFields ')' '=' exp       {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, $4, nullptr, $7});}
 
- | METHOD id '(' ')' '=' exp                {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, nullptr, nullptr, $6});}
  | METHOD id '(' tyFields ')' ':' typeId '=' exp {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, $4, $7, $9});}
- | METHOD id '(' ')' ':' typeId '=' exp     {$$ = new ParentASTNode("class field Method Declaration", nodeType::CLASS_FIELD, {$2, nullptr, $6, $8});}
 
 ty
  : typeId                                   {$$ = $1;}
  /*Record type definition.*/
- | '{' '}'                                  {$$ = new ParentASTNode("record type definition", nodeType::REC_TYPE, {});}
  | '{' tyFields '}'                         {$$ = new ParentASTNode("record type definition", nodeType::REC_TYPE, {$2});}
  /*Array type definition. */
  | ARRAY OF typeId                          {$$ = new ParentASTNode("array type definition", nodeType::ARRAY_TYPE, {$3});}
@@ -175,14 +173,16 @@ ty
  | CLASS EXTENDS typeId '{' '}'             {$$ = new ParentASTNode("class definition", nodeType::CLASS_TYPE, {nullptr, $3});}
  | CLASS EXTENDS typeId '{' classFields '}' {$$ = new ParentASTNode("class definition", nodeType::CLASS_TYPE, {$5, $3});}
 ;
-/*Departure: I coever the tyFields = 0 case wherever tyFields
- is used. 
- */
-tyFields
- : id ':' typeId                           {$$ = new ParentASTNode("type fields", nodeType::TY_FIELDS, {$1, $3});}
+
+tyFields :                                 {$$ = new ParentASTNode("type fields", nodeType::TY_FIELDS, {});} 
+ | id ':' typeId                           {$$ = new ParentASTNode("type fields", nodeType::TY_FIELDS, {$1, $3});}
 
  | id ':' typeId ',' tyFields              {$$ = new ParentASTNode("type fields", nodeType::TY_FIELDS, {$1, $3, $5});}
 ;
 
 
 %%
+void yyerror (char const *s) {
+    std::cerr << "Error at line " << yylineno << ": "; 
+    std::cerr << s << std::endl;
+}

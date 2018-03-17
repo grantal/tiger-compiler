@@ -5,7 +5,7 @@
 	int commentDepth = 0;
         extern YYSTYPE yylval;
 %}
-
+%option yylineno
 %option noyywrap
 %option nounistd
 %x commentState
@@ -72,7 +72,7 @@ new				{return NEW;}
 \<=				{return ELESS;}
 \>= 				{return EGREATER;}
 :=				{return ASSIGNMENT;}
-\n\r|\r\n|\r|\n			{return ENDL;}
+\n\r|\r\n|\r|\n			{}
 [a-zA-Z][A-Za-z0-9_]*|_main     {yylval.strVal = strdup(yytext); return ID;}
 [ \t]*                          {}
 .                               {return ERROR;}
