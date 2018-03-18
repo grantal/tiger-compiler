@@ -19,13 +19,17 @@ using namespace tiger;
 
 %locations
 
-%type<node> program id typeId exp exps expList lValue decs dec ty tyFields classFields classField varDec recs
+%type<node> id typeId exp exps expList lValue decs dec ty tyFields classFields classField varDec recs
 
 %token<strVal> INTLIT STRINGLIT ID
 %token NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
 %token IF THEN ELSE WHILE FOR TO DO LET IN END BREAK
 %token CLASS EXTENDS PRIMITIVE IMPORT METHOD
 %token ERROR NOTEQUAL ELESS EGREATER
+
+%destructor {delete $$;} <node>
+%destructor {free($$);} <strVal>
+
 /* precedence rules (Added Assingnment op) */
 %left op
 %left ASSIGNMENT
@@ -41,20 +45,20 @@ control flow shift/reduce conflicts */
 %nonassoc DO
 %nonassoc OF
 %%
-program: exp         {programNode = std::shared_ptr<ParentASTNode>(new ParentASTNode("program",nodeType::PROGRAM, {$1}));}
- | decs              {programNode = std::shared_ptr<ParentASTNode>(new ParentASTNode("program",nodeType::PROGRAM, {$1}));}
+program: exp         {programNode.reset(new ParentASTNode("program",nodeType::PROGRAM, {$1}));}
+ | decs              {programNode.reset(new ParentASTNode("program",nodeType::PROGRAM, {$1}));}
 ;
 
 /*Since id shows up so many places, we want it to be a node and not a string*/
-id: ID                         {$$ = new TokenASTNode(ID, $1);}
+id: ID                         {$$ = new TokenASTNode(ID, $1); free($1);}
 ;
 
 typeId: id                     {$$ = new ParentASTNode("type id",nodeType::TYPE_ID,{$1});} 
 ;
 
 exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
- | INTLIT                      {$$ = new TokenASTNode(INTLIT, $1);}
- | STRINGLIT                   {$$ = new TokenASTNode(STRINGLIT, $1);}
+ | INTLIT                      {$$ = new TokenASTNode(INTLIT, $1); free($1);}
+ | STRINGLIT                   {$$ = new TokenASTNode(STRINGLIT, $1); free($1);}
 /* array and record creation */
  | id '['exp']' OF exp         {$$ = new ParentASTNode("Array", nodeType::ARRAY, {new ParentASTNode("type id",nodeType::TYPE_ID,{$1}), $3, $6});}
  | typeId '{' '}'              {$$ = new ParentASTNode("Record", nodeType::RECORD,{$1,nullptr});}
@@ -142,7 +146,7 @@ dec
  | PRIMITIVE id '(' tyFields ')'            {$$ = new ParentASTNode("primitive declaration", nodeType::PRIM_DEC, {$2, $4});}
  | PRIMITIVE id '(' tyFields ')' ':' typeId {$$ = new ParentASTNode("primitive declaration", nodeType::PRIM_DEC, {$2, $4, $7});}
 /*importing declarations*/
- | IMPORT STRINGLIT                         {$$ = new ParentASTNode("import", nodeType::IMPORT_, {new TokenASTNode(STRINGLIT, $2)});}
+ | IMPORT STRINGLIT                         {$$ = new ParentASTNode("import", nodeType::IMPORT_, {new TokenASTNode(STRINGLIT, $2)}); free($2);}
 
 ; 
 /*helper rules for decs */
