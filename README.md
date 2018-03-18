@@ -18,6 +18,10 @@ When `yylex()` returns 0, we say we've reached the end of the file
 
 ## Parser Notes
 
+### Implementing Tiger.y
+
+The tiger grammar was implemented initially by closly following the syntax listed in the [Tiger Compiler Reference Manual](https://www.lrde.epita.fr/~tiger/tiger.html#Lexical-Specifications). Additional rules were added to support recursive syntax, like creating a record with either an arbitrary numebr of entries or no entries. For the empty record case, there is a rule to match `typeId '{' '}'`, and a seperate rule to match record entries. `%left` Precedence is defined for arithmetic and comparison operators to resolve shift/reduce conflicts, and `%nonassoc` used to resolve the 'hanging-else' conflict.
+
 ### Our AST classes
 
 ##### TokenASTNode 
