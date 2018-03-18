@@ -242,19 +242,16 @@ TEST_CASE("make sure real file test1.tig parses correctly","[syntax]") {
     yyin = fopen("tiger-programs/test1.tig", "r");
     auto b = buffman::Buffman(yyin);
     REQUIRE(yyparse() == 0);
-    fclose(yyin);
 }
 TEST_CASE("make sure real file test2.tig parses correctly","[syntax]") {
     yyin = fopen("tiger-programs/test2.tig", "r");
     auto b = buffman::Buffman(yyin);
     REQUIRE(yyparse() == 0);
-    fclose(yyin);
 }
 TEST_CASE("make sure real file test3.tig parses correctly","[syntax]") {
     yyin = fopen("tiger-programs/test3.tig", "r");
     auto b = buffman::Buffman(yyin);
     REQUIRE(yyparse() == 0);
-    fclose(yyin);
 }
 TEST_CASE("make sure newline_in_string.tig errors","[syntax]") {
     std::stringstream buffer;
@@ -263,7 +260,6 @@ TEST_CASE("make sure newline_in_string.tig errors","[syntax]") {
     auto b = buffman::Buffman(yyin);
     REQUIRE(yyparse() == 1);
     std::cerr.rdbuf(old);
-    fclose(yyin);
 }
 TEST_CASE("throw errors correctly","[syntax]") {
     std::stringstream buffer;
@@ -274,7 +270,6 @@ TEST_CASE("throw errors correctly","[syntax]") {
     // error should be on line 6
     REQUIRE(buffer.str().find("6") != std::string::npos);
     std::cerr.rdbuf(old);
-    fclose(yyin);
 }
 
 } //namespace
