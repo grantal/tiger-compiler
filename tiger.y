@@ -19,7 +19,7 @@ using namespace tiger;
 
 %locations
 
-%type<node> program id typeId exp exps expList lValue decs dec ty tyFields classFields classField varDec recs
+%type<node> id typeId exp exps expList lValue decs dec ty tyFields classFields classField varDec recs
 
 %token<strVal> INTLIT STRINGLIT ID
 %token NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
@@ -45,8 +45,8 @@ control flow shift/reduce conflicts */
 %nonassoc DO
 %nonassoc OF
 %%
-program: exp         {programNode.reset(new ParentASTNode("program",nodeType::PROGRAM, {$1})); $$ = programNode.get();}
- | decs              {programNode.reset(new ParentASTNode("program",nodeType::PROGRAM, {$1})); $$ = programNode.get();}
+program: exp         {programNode.reset(new ParentASTNode("program",nodeType::PROGRAM, {$1}));}
+ | decs              {programNode.reset(new ParentASTNode("program",nodeType::PROGRAM, {$1}));}
 ;
 
 /*Since id shows up so many places, we want it to be a node and not a string*/
