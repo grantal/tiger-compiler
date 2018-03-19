@@ -10,4 +10,5 @@
 10. 'break's in the right place (break needs to be child/grandchild of a loop or other control structure)
 11. Types of if/else need to be the same
 12. can't assign to index variable in for loop
- 
+13. can't compare incompatible types 
+14. Something about things needing to return unit (see https://www.cs.princeton.edu/~appel/modern/testcases/test15.tig)
