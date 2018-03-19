@@ -1,0 +1,8 @@
+1. Variables with the same names in different scopes
+2. Type mismatch in expression
+3. Mutually recursive functions
+4. Higher-order/nested functions
+5. Undefinied or multiply defined identifiers
+6. misuse of reserved words
+7. correct nesting
+8. 
