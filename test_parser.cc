@@ -243,16 +243,6 @@ TEST_CASE("make sure real file test1.tig parses correctly","[syntax]") {
     auto b = buffman::Buffman(yyin);
     REQUIRE(yyparse() == 0);
 }
-TEST_CASE("make sure real file test2.tig parses correctly","[syntax]") {
-    yyin = fopen("tiger-programs/test2.tig", "r");
-    auto b = buffman::Buffman(yyin);
-    REQUIRE(yyparse() == 0);
-}
-TEST_CASE("make sure real file test3.tig parses correctly","[syntax]") {
-    yyin = fopen("tiger-programs/test3.tig", "r");
-    auto b = buffman::Buffman(yyin);
-    REQUIRE(yyparse() == 0);
-}
 TEST_CASE("make sure newline_in_string.tig errors","[syntax]") {
     std::stringstream buffer;
     std::streambuf * old = std::cerr.rdbuf(buffer.rdbuf());
@@ -261,7 +251,7 @@ TEST_CASE("make sure newline_in_string.tig errors","[syntax]") {
     REQUIRE(yyparse() == 1);
     std::cerr.rdbuf(old);
 }
-TEST_CASE("throw errors correctly","[syntax]") {
+TEST_CASE("throw errors correctly, file errorTest.tig","[syntax]") {
     std::stringstream buffer;
     std::streambuf * old = std::cerr.rdbuf(buffer.rdbuf());
     yyin = fopen("tiger-programs/errorTest.tig", "r");
@@ -272,4 +262,25 @@ TEST_CASE("throw errors correctly","[syntax]") {
     std::cerr.rdbuf(old);
 }
 
+TEST_CASE("test that all of appel's testfiles that should parse, do parse","[syntax]") {
+    for (int i = 1; i <= 48; i++) {
+        SECTION("parse test" + std::to_string(i) + ".tig") {
+            char filename[26];
+            sprintf(filename, "tiger-programs/test%d.tig", i);
+            yyin = fopen(filename, "r");
+            auto b = buffman::Buffman(yyin);
+            REQUIRE(yyparse() == 0);
+        }
+    }
+}
+TEST_CASE("Another error message test, of test49.tig","[syntax]") {
+    std::stringstream buffer;
+    std::streambuf * old = std::cerr.rdbuf(buffer.rdbuf());
+    yyin = fopen("tiger-programs/test49.tig", "r");
+    auto b = buffman::Buffman(yyin);
+    REQUIRE(yyparse() == 1);
+    // error should be on line 5
+    REQUIRE(buffer.str().find("5") != std::string::npos);
+    std::cerr.rdbuf(old);
+}
 } //namespace

@@ -89,6 +89,7 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | exp '&' exp                 {$$ = new ParentASTNode("And (&)", nodeType::AND,{$1,$3});}
  | exp '|' exp                      {$$ = new ParentASTNode("or (|)",nodeType::OR, {$1, $3});}
  | '(' exps ')'                     {$$ = new ParentASTNode("sequence",nodeType::SEQUENCE, {$2});}
+ | '(' ')'                          {$$ = new ParentASTNode("sequence",nodeType::SEQUENCE, {});} 
 /*Assignment */
  | lValue ASSIGNMENT exp            {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3});}
  | id ASSIGNMENT exp                {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3});}
@@ -116,10 +117,10 @@ expList
 
 /* Departure: I cover the single id case above and the id > 1 case here */
 lValue 
- : id '.' id                                {$$ = new ParentASTNode("Reference", nodeType::REFERENCE,{$1,new ParentASTNode("Reference", nodeType::REFERENCE,{$3,nullptr})});}
- | lValue '.' id                            {$$ = new ParentASTNode("Referemce", nodeType::REFERENCE,{$1,new ParentASTNode("Reference", nodeType::REFERENCE,{$3,nullptr})});}
- | lValue '[' exp ']'                       {$$ = new ParentASTNode("Reference", nodeType::REFERENCE,{$1,new ParentASTNode("Array Reference", nodeType::ARRAY_REF,{$1,$3,nullptr})});}
- | id '[' exp ']'                           {$$ = new ParentASTNode("Reference", nodeType::REFERENCE,{$1,new ParentASTNode("Array Reference", nodeType::ARRAY_REF,{$1,$3,nullptr})});}
+ : id '.' id                                {$$ = new ParentASTNode("Reference", nodeType::REFERENCE,{$1,$3});}
+ | lValue '.' id                            {$$ = new ParentASTNode("Reference", nodeType::REFERENCE,{$1,$3});}
+ | lValue '[' exp ']'                       {$$ = new ParentASTNode("Array Reference", nodeType::ARRAY_REF,{$1,$3});}
+ | id '[' exp ']'                           {$$ = new ParentASTNode("Array Reference", nodeType::ARRAY_REF,{$1,$3});}
 ;
 /* exps separated by semicolons */
 exps
