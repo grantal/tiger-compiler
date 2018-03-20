@@ -310,6 +310,38 @@ TEST_CASE("test references", "[syntax]"){
             REQUIRE(b->getToken() == ID);
             REQUIRE(b->getVal() == "b");
     }
+    SECTION("array references") {
+            auto buff = buffman::Buffman("a[1][2][3][4]");
+            REQUIRE(yyparse() == 0);
+            // left of a1234 should be another array reference with a,1,2,3 as children/grandchildren
+            // right should be 4
+            ParentASTNode* a1234 = (ParentASTNode*)programNode->_getChild(0);
+            REQUIRE(a1234->getNodeType() == nodeType::ARRAY_REF);
+            TokenASTNode* four = (TokenASTNode*)a1234->_getChild(1);
+            REQUIRE(four->getToken() == INTLIT);
+            REQUIRE(four->getVal() == "4");
+            // left of a123 is a12, right is 3
+            ParentASTNode* a123 = (ParentASTNode*)a1234->_getChild(0);
+            REQUIRE(a123->getNodeType() == nodeType::ARRAY_REF);
+            TokenASTNode* three = (TokenASTNode*)a123->_getChild(1);
+            REQUIRE(three->getToken() == INTLIT);
+            REQUIRE(three->getVal() == "3");
+            // left should be a and 1, right is 2
+            ParentASTNode* a12 = (ParentASTNode*)a123->_getChild(0);
+            REQUIRE(a12->getNodeType() == nodeType::ARRAY_REF);
+            TokenASTNode* two = (TokenASTNode*)a12->_getChild(1);
+            REQUIRE(two->getToken() == INTLIT);
+            REQUIRE(two->getVal() == "2");
+            // left should be a, right should be 1
+            ParentASTNode* a1 = (ParentASTNode*)a12->_getChild(0);
+            REQUIRE(a1->getNodeType() == nodeType::ARRAY_REF);
+            TokenASTNode* a = (TokenASTNode*)a1->_getChild(0);
+            TokenASTNode* one = (TokenASTNode*)a1->_getChild(1);
+            REQUIRE(a->getToken() == ID);
+            REQUIRE(a->getVal() == "a");
+            REQUIRE(one->getToken() == INTLIT);
+            REQUIRE(one->getVal() == "1");
+    }
 }
 
 } //namespace
