@@ -38,6 +38,11 @@ ASTNode::string_t ParentASTNode::toStr(int depth) const {
     std::for_each(children_.begin(), children_.end(), [&retStr, &depth](ASTptr c){
         if (c != nullptr) {
             retStr += c->toStr(depth + 1) + "\n";
+        } else {
+            for (int i = 0; i < depth + 1; i++) {
+                retStr += "  ";
+            }
+            retStr += "nullptr\n";
         }
     }); 
     for (int i = 0; i < depth; i++) {

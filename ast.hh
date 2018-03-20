@@ -86,6 +86,14 @@ class TokenASTNode : public ASTNode {
   {}
   virtual ~TokenASTNode() = default;
   virtual string_t toStr(int depth = 0) const;
+  virtual token_t getToken() const 
+  {
+    return token_;
+  }
+  virtual string_t getVal() const 
+  {
+    return value_;
+  }
  private:
   const token_t token_;
   const string_t value_;
