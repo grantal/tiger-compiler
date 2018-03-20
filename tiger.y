@@ -61,18 +61,18 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | STRINGLIT                   {$$ = new TokenASTNode(STRINGLIT, $1); free($1);}
 /* array and record creation */
  | id '['exp']' OF exp         {$$ = new ParentASTNode("Array", nodeType::ARRAY, {new ParentASTNode("type id",nodeType::TYPE_ID,{$1}), $3, $6});}
- | typeId '{' '}'              {$$ = new ParentASTNode("Record", nodeType::RECORD,{$1,nullptr});}
+ | typeId '{' '}'              {$$ = new ParentASTNode("Record", nodeType::RECORD,{$1});}
  | typeId '{' recs '}'         {$$ = new ParentASTNode("Record", nodeType::RECORD,{$1,$3});}
 /* Objects creation */
- | NEW typeId                  {$$ = new ParentASTNode("new Object", nodeType::OBJECT, {$2,nullptr});}
+ | NEW typeId                  {$$ = new ParentASTNode("new Object", nodeType::OBJECT, {$2});}
 /* Variables, filed, elements of an array */
- | lValue                      {$$ = new ParentASTNode("Reference", nodeType::REFERENCE, {$1,nullptr});}
- | id                          {$$ = new ParentASTNode("Reference", nodeType::REFERENCE, {$1,nullptr});}
+ | lValue                      {$$ = $1;}
+ | id                          {$$ = new ParentASTNode("Reference", nodeType::REFERENCE, {$1});}
 /* function call */
- | id '(' ')'                  {$$ = new ParentASTNode("Call function", nodeType::CALL_FUNC,{$1,nullptr});}
+ | id '(' ')'                  {$$ = new ParentASTNode("Call function", nodeType::CALL_FUNC,{$1});}
  | id '(' expList ')'          {$$ = new ParentASTNode("Call function", nodeType::CALL_FUNC,{$1,$3});}
 /* method call */
- | lValue '(' ')'              {$$ = new ParentASTNode("Call Method", nodeType::CALL_METHOD,{$1,nullptr});}
+ | lValue '(' ')'              {$$ = new ParentASTNode("Call Method", nodeType::CALL_METHOD,{$1});}
  | lValue '(' expList ')'      {$$ = new ParentASTNode("Call Method", nodeType::CALL_METHOD,{$1,$3});}
 /* Operations */
  | '-' exp                     {$$ = new ParentASTNode("Negate", nodeType::NEGATE,{$2});}
@@ -106,7 +106,7 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
 ;
 /*=========HELPERS FOR EXP=============*/
 recs
- : id '=' exp                    {$$ = new ParentASTNode("Record Value", nodeType::REC_VAL,{$1,$3,nullptr});}
+ : id '=' exp                    {$$ = new ParentASTNode("Record Value", nodeType::REC_VAL,{$1,$3});}
  | id '=' exp ',' recs           {$$ = new ParentASTNode("Record Value", nodeType::REC_VAL,{$1,$3,$5});}
 ;
 /* exps separated by commas */

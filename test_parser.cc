@@ -283,4 +283,33 @@ TEST_CASE("Another error message test, of test49.tig","[syntax]") {
     REQUIRE(buffer.str().find("5") != std::string::npos);
     std::cerr.rdbuf(old);
 }
+
+TEST_CASE("test references", "[syntax]"){
+    SECTION("standard references") {
+            auto buff = buffman::Buffman("a.b.c.d");
+            REQUIRE(yyparse() == 0);
+            // right child of ETCd should be d, left should be another lval with a,b,c as children
+            ParentASTNode* ETCd = (ParentASTNode*)programNode->_getChild(0);
+            REQUIRE(ETCd->getNodeType() == nodeType::REFERENCE);
+            TokenASTNode* d = (TokenASTNode*)ETCd->_getChild(1);
+            REQUIRE(d->getToken() == ID);
+            REQUIRE(d->getVal() == "d");
+            // right should be c, left should be a and b
+            ParentASTNode* ETCc = (ParentASTNode*)ETCd->_getChild(0);
+            REQUIRE(ETCc->getNodeType() == nodeType::REFERENCE);
+            TokenASTNode* c = (TokenASTNode*)ETCc->_getChild(1);
+            REQUIRE(c->getToken() == ID);
+            REQUIRE(c->getVal() == "c");
+            // left should be a, right should be b 
+            ParentASTNode* aANDb = (ParentASTNode*)ETCc->_getChild(0);
+            REQUIRE(aANDb->getNodeType() == nodeType::REFERENCE);
+            TokenASTNode* a = (TokenASTNode*)aANDb->_getChild(0);
+            TokenASTNode* b = (TokenASTNode*)aANDb->_getChild(1);
+            REQUIRE(a->getToken() == ID);
+            REQUIRE(a->getVal() == "a");
+            REQUIRE(b->getToken() == ID);
+            REQUIRE(b->getVal() == "b");
+    }
+}
+
 } //namespace
