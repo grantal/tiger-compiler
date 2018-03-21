@@ -15,6 +15,13 @@ int semantic_checks(ASTNode::ASTptr node, Scope* env) {
                 std::cout << parNode->toStr() << std::endl;
                 return semantic_checks(parNode->_getChild(0), env);
                 break;
+            // make new env that we'll add to with our decs and use in our exps
+            case nodeType::LET_IN_END: {
+                Scope* newEnv = new Scope(*env);
+                semantic_checks(parNode->_getChild(0), newEnv);
+                return semantic_checks(parNode->_getChild(1), newEnv);
+                break;
+            }
             default:
                 return 0;
         }
