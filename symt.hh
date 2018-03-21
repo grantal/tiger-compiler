@@ -49,6 +49,17 @@ class Scope {
     virtual void emplaceFunc(sym_id_t newF, sym_val_t newT) {
        funcs_.emplace(newF, newT);
     }
+    // see if a given string is a valid type
+    virtual bool isType(type_t t) const {
+        return types_.find(t) != types_.end();
+    }
+    // get type of variable or function
+    virtual sym_val_t getVarType(sym_id_t v) {
+        return vars_.at(v);
+    } 
+    virtual sym_val_t getFuncType(sym_id_t f) {
+        return funcs_.at(f);
+    } 
 
   private:
     TypeT types_; 
