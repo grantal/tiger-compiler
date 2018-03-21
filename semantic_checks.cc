@@ -18,8 +18,11 @@ int semantic_checks(ASTNode::ASTptr node, Scope* env) {
             // make new env that we'll add to with our decs and use in our exps
             case nodeType::LET_IN_END: {
                 Scope* newEnv = new Scope(*env);
-                semantic_checks(parNode->_getChild(0), newEnv);
-                return semantic_checks(parNode->_getChild(1), newEnv);
+                int check1 = semantic_checks(parNode->_getChild(0), newEnv);
+                int check2 = semantic_checks(parNode->_getChild(1), newEnv);
+                delete newEnv;
+                // if either error, the whole thing errors
+                return check1 + check2;
                 break;
             }
             default:
