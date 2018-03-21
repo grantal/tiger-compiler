@@ -5,6 +5,7 @@
  * Then we have SymT  which contains a map from an identifier to it's type
  * also a class 'Scope' that stores a TypeT and 2 SymTs, one for functions and one for variables
  */
+#pragma once
 #include <string>
 #include <set>
 #include <map>
