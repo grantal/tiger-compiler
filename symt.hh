@@ -26,12 +26,16 @@ class Scope {
     Scope(const Scope &other) = default;   
     virtual ~Scope() = default;
         
+    // insertType and emplaceType act basically the same
+    // is seemed uneven to have an insert and emplace for var and func and not have both for
+    // type
     virtual void insertType(type_t newT) {
        types_.insert(newT);
     }
     virtual void emplaceType(type_t newT) {
        types_.emplace(newT);
     }
+    // I think the emplace functions will be far more useful
     virtual void insertVar(std::pair<sym_id_t,sym_val_t> newV) {
        vars_.insert(newV);
     }
