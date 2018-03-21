@@ -243,16 +243,6 @@ TEST_CASE("make sure real file test1.tig parses correctly","[syntax]") {
     auto b = buffman::Buffman(yyin);
     REQUIRE(yyparse() == 0);
 }
-TEST_CASE("make sure real file test2.tig parses correctly","[syntax]") {
-    yyin = fopen("tiger-programs/test2.tig", "r");
-    auto b = buffman::Buffman(yyin);
-    REQUIRE(yyparse() == 0);
-}
-TEST_CASE("make sure real file test3.tig parses correctly","[syntax]") {
-    yyin = fopen("tiger-programs/test3.tig", "r");
-    auto b = buffman::Buffman(yyin);
-    REQUIRE(yyparse() == 0);
-}
 TEST_CASE("make sure newline_in_string.tig errors","[syntax]") {
     std::stringstream buffer;
     std::streambuf * old = std::cerr.rdbuf(buffer.rdbuf());
@@ -261,7 +251,7 @@ TEST_CASE("make sure newline_in_string.tig errors","[syntax]") {
     REQUIRE(yyparse() == 1);
     std::cerr.rdbuf(old);
 }
-TEST_CASE("throw errors correctly","[syntax]") {
+TEST_CASE("throw errors correctly, file errorTest.tig","[syntax]") {
     std::stringstream buffer;
     std::streambuf * old = std::cerr.rdbuf(buffer.rdbuf());
     yyin = fopen("tiger-programs/errorTest.tig", "r");
@@ -270,6 +260,88 @@ TEST_CASE("throw errors correctly","[syntax]") {
     // error should be on line 6
     REQUIRE(buffer.str().find("6") != std::string::npos);
     std::cerr.rdbuf(old);
+}
+
+TEST_CASE("test that all of appel's testfiles that should parse, do parse","[syntax]") {
+    for (int i = 1; i <= 48; i++) {
+        SECTION("parse test" + std::to_string(i) + ".tig") {
+            char filename[26];
+            sprintf(filename, "tiger-programs/test%d.tig", i);
+            yyin = fopen(filename, "r");
+            auto b = buffman::Buffman(yyin);
+            REQUIRE(yyparse() == 0);
+        }
+    }
+}
+TEST_CASE("Another error message test, of test49.tig","[syntax]") {
+    std::stringstream buffer;
+    std::streambuf * old = std::cerr.rdbuf(buffer.rdbuf());
+    yyin = fopen("tiger-programs/test49.tig", "r");
+    auto b = buffman::Buffman(yyin);
+    REQUIRE(yyparse() == 1);
+    // error should be on line 5
+    REQUIRE(buffer.str().find("5") != std::string::npos);
+    std::cerr.rdbuf(old);
+}
+
+TEST_CASE("test references", "[syntax]"){
+    SECTION("standard references") {
+            auto buff = buffman::Buffman("a.b.c.d");
+            REQUIRE(yyparse() == 0);
+            // right child of ETCd should be d, left should be another lval with a,b,c as children
+            ParentASTNode* ETCd = (ParentASTNode*)programNode->_getChild(0);
+            REQUIRE(ETCd->getNodeType() == nodeType::REFERENCE);
+            TokenASTNode* d = (TokenASTNode*)ETCd->_getChild(1);
+            REQUIRE(d->getToken() == ID);
+            REQUIRE(d->getVal() == "d");
+            // right should be c, left should be a and b
+            ParentASTNode* ETCc = (ParentASTNode*)ETCd->_getChild(0);
+            REQUIRE(ETCc->getNodeType() == nodeType::REFERENCE);
+            TokenASTNode* c = (TokenASTNode*)ETCc->_getChild(1);
+            REQUIRE(c->getToken() == ID);
+            REQUIRE(c->getVal() == "c");
+            // left should be a, right should be b 
+            ParentASTNode* aANDb = (ParentASTNode*)ETCc->_getChild(0);
+            REQUIRE(aANDb->getNodeType() == nodeType::REFERENCE);
+            TokenASTNode* a = (TokenASTNode*)aANDb->_getChild(0);
+            TokenASTNode* b = (TokenASTNode*)aANDb->_getChild(1);
+            REQUIRE(a->getToken() == ID);
+            REQUIRE(a->getVal() == "a");
+            REQUIRE(b->getToken() == ID);
+            REQUIRE(b->getVal() == "b");
+    }
+    SECTION("array references") {
+            auto buff = buffman::Buffman("a[1][2][3][4]");
+            REQUIRE(yyparse() == 0);
+            // left of a1234 should be another array reference with a,1,2,3 as children/grandchildren
+            // right should be 4
+            ParentASTNode* a1234 = (ParentASTNode*)programNode->_getChild(0);
+            REQUIRE(a1234->getNodeType() == nodeType::ARRAY_REF);
+            TokenASTNode* four = (TokenASTNode*)a1234->_getChild(1);
+            REQUIRE(four->getToken() == INTLIT);
+            REQUIRE(four->getVal() == "4");
+            // left of a123 is a12, right is 3
+            ParentASTNode* a123 = (ParentASTNode*)a1234->_getChild(0);
+            REQUIRE(a123->getNodeType() == nodeType::ARRAY_REF);
+            TokenASTNode* three = (TokenASTNode*)a123->_getChild(1);
+            REQUIRE(three->getToken() == INTLIT);
+            REQUIRE(three->getVal() == "3");
+            // left should be a and 1, right is 2
+            ParentASTNode* a12 = (ParentASTNode*)a123->_getChild(0);
+            REQUIRE(a12->getNodeType() == nodeType::ARRAY_REF);
+            TokenASTNode* two = (TokenASTNode*)a12->_getChild(1);
+            REQUIRE(two->getToken() == INTLIT);
+            REQUIRE(two->getVal() == "2");
+            // left should be a, right should be 1
+            ParentASTNode* a1 = (ParentASTNode*)a12->_getChild(0);
+            REQUIRE(a1->getNodeType() == nodeType::ARRAY_REF);
+            TokenASTNode* a = (TokenASTNode*)a1->_getChild(0);
+            TokenASTNode* one = (TokenASTNode*)a1->_getChild(1);
+            REQUIRE(a->getToken() == ID);
+            REQUIRE(a->getVal() == "a");
+            REQUIRE(one->getToken() == INTLIT);
+            REQUIRE(one->getVal() == "1");
+    }
 }
 
 } //namespace

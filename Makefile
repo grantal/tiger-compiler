@@ -6,7 +6,7 @@ OLDFLAGS=-Wno-write-strings -Wno-deprecated -std=c++17 -c #for compiling c code 
 LDFLAGS=$(CXXFLAGS)
 LIBS=-lfl
 
-all: testlexer testparser
+all: testlexer testparser testsemantics
 
 testlexer: lex.yy.o tiger.tab.o test_lexer.o ast.o buffman.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
@@ -26,11 +26,14 @@ tiger.tab.o: tiger.tab.c lex.yy.c
 tiger.tab.%: tiger.y
 	$(BS) -d $^
 
+testsemantics: lex.yy.o tiger.tab.o semantic_checks.o test_semantics.cc ast.o buffman.o
+	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 %.o.cc: %.cc %.hh
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
 test: all
-	./testlexer && ./testparser
+	./testlexer && ./testparser && ./testsemantics
 
 clean:
 	rm -f *.o *.gch testlexer lex.yy.c tiger.tab.h tiger.tab.c

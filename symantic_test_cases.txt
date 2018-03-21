@@ -1,0 +1,14 @@
+1. Variables with the same names in different scopes
+2. Type mismatch in expression
+3. Mutually recursive functions
+4. Higher-order/nested functions
+5. Undefinied or multiply defined identifiers
+6. Misuse of reserved words
+7. Correct nesting
+8. Variable re-declaration
+9. function argument wrong type (ie function myFunc(a:int) ..... myFunc("a string"))
+10. 'break's in the right place (break needs to be child/grandchild of a loop or other control structure)
+11. Types of if/else need to be the same
+12. can't assign to index variable in for loop
+13. can't compare incompatible types 
+14. Something about things needing to return unit (see https://www.cs.princeton.edu/~appel/modern/testcases/test15.tig)

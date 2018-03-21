@@ -72,7 +72,7 @@ class ASTNode {
 
   ASTNode() = default;
   virtual ~ASTNode() = default;
-  virtual std::string toStr() const = 0; //tiger.y For printing purposes
+  virtual std::string toStr(int depth = 0) const = 0; //tiger.y For printing purposes
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,30 +85,17 @@ class TokenASTNode : public ASTNode {
    : ASTNode(), token_(token), value_(value)
   {}
   virtual ~TokenASTNode() = default;
-
-  virtual string_t toStr() const
+  virtual string_t toStr(int depth = 0) const;
+  virtual token_t getToken() const 
   {
-    return std::to_string(token_) + ": " + value_;
+    return token_;
   }
- private:
-  const token_t token_;
-  const string_t value_;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-//tiger.y class for tokens like <, <=, [, ], <>, etc. just stores their literal value
-class StringASTNode : public ASTNode {
- public:
-  StringASTNode(string_t value)
-   : ASTNode(), value_(value)
-  {}
-  virtual ~StringASTNode() = default;
-
-  virtual string_t toStr() const
+  virtual string_t getVal() const 
   {
     return value_;
   }
  private:
+  const token_t token_;
   const string_t value_;
 };
 
@@ -122,7 +109,7 @@ class ParentASTNode : public ASTNode {
    : ASTNode(), desc_(desc), nodeType_(nType), children_(children)
   {}
   virtual ~ParentASTNode();
-  virtual string_t toStr() const;    
+  virtual string_t toStr(int depth = 0) const;
   virtual string_t getDesc() const
   {
     return desc_;
