@@ -7,7 +7,7 @@
 
 namespace tiger {
 
-int semantic_checks(ASTNode::ASTptr node, Scope* env) {
+int semantic_checks(ASTNode::ASTptr node, std::shared_ptr<Scope> env) {
     if (const ParentASTNode* parNode = dynamic_cast<const ParentASTNode*>(node)) {
         // print full ast
         switch (parNode->getNodeType()) {
@@ -17,14 +17,16 @@ int semantic_checks(ASTNode::ASTptr node, Scope* env) {
                 break;
             // make new env that we'll add to with our decs and use in our exps
             case nodeType::LET_IN_END: {
-                Scope* newEnv = new Scope(*env);
+                std::shared_ptr<Scope> newEnv = std::make_shared<Scope>(*env); //this should copy env?
                 int check1 = semantic_checks(parNode->_getChild(0), newEnv);
                 int check2 = semantic_checks(parNode->_getChild(1), newEnv);
-                delete newEnv;
-                // if either error, the whole thing errors
+                // make sure newEnv actually is a copy
+                newEnv->insertType("myCoolType");
+                std::cout << env->isType("myCoolType") << std::endl;
+                std::cout << newEnv->isType("myCoolType") << std::endl;
                 return check1 + check2;
                 break;
-            }
+            } // newEnv gets deleted here when it goes out of scope
             default:
                 return 0;
         }
