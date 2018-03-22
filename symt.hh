@@ -65,6 +65,13 @@ class Scope {
     virtual sym_val_t getFuncType(sym_id_t f) {
         return funcs_.at(f);
     } 
+    // check if variable or function exist
+    virtual bool isVar(sym_id_t v) {
+        return vars_.find(v) != vars_.end();
+    } 
+    virtual bool isFunc(sym_id_t f) {
+        return funcs_.find(f) != funcs_.end();
+    } 
 
   private:
     TypeT types_; 
