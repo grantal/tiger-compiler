@@ -17,4 +17,17 @@ TEST_CASE("example semantic check","[semantics]") {
     REQUIRE(semantic_checks(programNode.get()) == 0);
 }
 
+TEST_CASE("test semantics for appel's testfiles","[semantics]") {
+    for (int i = 1; i <= 48; i++) {
+        SECTION("semantics for test" + std::to_string(i) + ".tig") {
+            char filename[26];
+            sprintf(filename, "tiger-programs/test%d.tig", i);
+            yyin = fopen(filename, "r");
+            auto b = buffman::Buffman(yyin);
+            REQUIRE(yyparse() == 0);
+            REQUIRE(semantic_checks(programNode.get()) == 0);
+        }
+    }
+}
+
 } //namespace

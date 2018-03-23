@@ -30,7 +30,6 @@ int semantic_checks(ASTNode::ASTptr node, std::shared_ptr<Scope> env) {
         // print full ast
         switch (parNode->getNodeType()) {
             case nodeType::PROGRAM:
-                std::cout << parNode->toStr() << std::endl;
                 return semantic_checks(parNode->_getChild(0), env);
                 // don't need break since we return
             // make new env that we'll add to with our decs and use in our exps
