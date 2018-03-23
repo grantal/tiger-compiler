@@ -8,6 +8,7 @@
 extern FILE* yyin;
 
 namespace tiger {
+
 extern std::shared_ptr<ParentASTNode> programNode;
 
 TEST_CASE("example semantic check","[semantics]") {

@@ -21,10 +21,9 @@ class Scope {
     using sym_id_t = std::string;
     using sym_val_t = std::string;
     using SymT = std::map<sym_id_t, sym_val_t>;
-
   private:
     // default types in tiger
-    const TypeT defaultTypes = {"int", "string", "array", "record"};
+    const TypeT defaultTypes = {"int", "string", "array", "record","invalid"};
 
   public:
     // constructors and destructor
