@@ -69,7 +69,7 @@ int semantic_checks(ASTNode::ASTptr node, std::shared_ptr<Scope> env) {
                 auto expType = typeOf(parNode->_getChild(1), env);
                 // this is the case that we are given a type
                 if (parNode->numChildren() == 3){
-                    ASTNode::string_t typeId = dynamic_cast<const TokenASTNode*>(dynamic_cast<const ParentASTNode*>(parNode->_getChild(2)))->getVal();  
+                    ASTNode::string_t typeId = dynamic_cast<const TokenASTNode*>(dynamic_cast<const ParentASTNode*>(parNode->_getChild(2))->_getChild(0))->getVal();  
                     if (env->isType(typeId)) {
                         // type of variable needs to be type of expression
                         if (typeId != expType){
