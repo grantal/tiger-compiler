@@ -1,5 +1,3 @@
 language: cpp
-apt:
-  packages: clang-5.0
-compiler: clang++-5.0
+compiler: clang-5.0
 script: make test
