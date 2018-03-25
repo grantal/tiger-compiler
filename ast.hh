@@ -7,6 +7,19 @@
  * ParentASTNOde, like StringASTNode but for nonterminals
  */
 #pragma once
+// pretty horrid workaround to let us have something of type YYLTYPE in ast.hh
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
 #include <string>
 #include <vector>
 

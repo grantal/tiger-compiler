@@ -1,17 +1,4 @@
 %{
-#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
-// pretty horrid workaround to let us have something of type YYLTYPE in ast.hh
-typedef struct YYLTYPE YYLTYPE;
-struct YYLTYPE
-{
-  int first_line;
-  int first_column;
-  int last_line;
-  int last_column;
-};
-# define YYLTYPE_IS_DECLARED 1
-# define YYLTYPE_IS_TRIVIAL 1
-#endif
 #include "ast.hh"
 #include "tiger.tab.h"
 #include <unistd.h>

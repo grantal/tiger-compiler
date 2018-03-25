@@ -9,6 +9,7 @@ namespace tiger {
 
 // gonna need to beef this function up later
 void semantic_error(ASTNode::ASTptr node, std::string error){
+   std::cerr << "Error at " << node->getLine() << "," << node->getCol() << ": "; 
    std::cerr << error << std::endl; 
    node->toStr(); //compiler got mad at me for unused parameter. We'll use this to get line numbers later
 }
