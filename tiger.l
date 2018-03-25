@@ -1,9 +1,27 @@
 %{
-        #include "ast.hh" 
-	#include "tiger.tab.h"
-	#include <unistd.h>
-	int commentDepth = 0;
-        extern YYSTYPE yylval;
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+// pretty horrid workaround to let us have something of type YYLTYPE in ast.hh
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+#include "ast.hh"
+#include "tiger.tab.h"
+#include <unistd.h>
+int commentDepth = 0;
+extern YYSTYPE yylval;
+
+int yycolumn = 1;
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \
+    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; \
+    yycolumn += yyleng;
 %}
 %option yylineno
 %option noyywrap
@@ -23,7 +41,7 @@
 				    BEGIN(commentState);
 				 }
 				}	
-<commentState>.|\n|\r		{}
+<commentState>.|\n|\r		{yycolumn = 1;}
 \"(\\[abfnrtv\\\"]|\\x[0-9A-Fa-f]{2}|\\[0-3][0-7]{2}|[^\\\"\n\r])*\" {yylval.strVal = strdup(yytext); return STRINGLIT;} 
 [0-9]+				{yylval.strVal = strdup(yytext); return INTLIT;}
 array				{return ARRAY;}
@@ -72,7 +90,7 @@ new				{return NEW;}
 \<=				{return ELESS;}
 \>= 				{return EGREATER;}
 :=				{return ASSIGNMENT;}
-\n\r|\r\n|\r|\n			{}
+\n\r|\r\n|\r|\n			{yycolumn = 1;}
 [a-zA-Z][A-Za-z0-9_]*|_main     {yylval.strVal = strdup(yytext); return ID;}
 [ \t]*                          {}
 .                               {return ERROR;}

@@ -1,7 +1,20 @@
 %{
 #include <iostream>
-#include "ast.hh"
 #include <memory>
+// pretty horrid workaround to let us have something of type YYLTYPE in ast.hh
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+#include "ast.hh"
 
 int yylex();
 extern int yylineno;
@@ -45,12 +58,12 @@ control flow shift/reduce conflicts */
 %nonassoc DO
 %nonassoc OF
 %%
-program: exp         {programNode.reset(new ParentASTNode("program",nodeType::PROGRAM, {$1}));}
- | decs              {programNode.reset(new ParentASTNode("program",nodeType::PROGRAM, {$1}));}
+program: exp         {programNode.reset(new ParentASTNode("program",nodeType::PROGRAM, {$1}, @1));}
+ | decs              {programNode.reset(new ParentASTNode("program",nodeType::PROGRAM, {$1}, @1));}
 ;
 
 /*Since id shows up so many places, we want it to be a node and not a string*/
-id: ID                         {$$ = new TokenASTNode(ID, $1); free($1);}
+id: ID                         {$$ = new TokenASTNode(ID, $1, @1); free($1);}
 ;
 
 typeId: id                     {$$ = new ParentASTNode("type id",nodeType::TYPE_ID,{$1});} 
