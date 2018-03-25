@@ -33,11 +33,56 @@ int semantic_checks(ASTNode::ASTptr node, std::shared_ptr<Scope> env) {
                 return semantic_checks(parNode->_getChild(0), env);
                 // don't need break since we return
             // make new env that we'll add to with our decs and use in our exps
+            case nodeType::WHILE_DO:
+            case nodeType::IF_THEN:{
+                int checks = 0;
+                Scope::type_t condType = typeOf(dynamic_cast<const TokenASTNode*>(parNode->_getChild(0)), env);
+                if(condType != "int"){
+                    semantic_error(parNode, "Conditional must be integer, got: " + condType);
+                    checks++;
+                }
+                // Create newEnv for each flow of control (true and false(else))
+                std::shared_ptr<Scope> newEnvTrue = std::make_shared<Scope>(*env);
+                checks += semantic_checks(parNode->_getChild(1),newEnvTrue);
+
+                if(parNode->_getChild(2) != nullptr){
+                    std::shared_ptr<Scope> newEnvFalse = std::make_shared<Scope>(*env);
+                    checks += semantic_checks(parNode->_getChild(2),newEnvFalse);
+                }
+
+                return checks;
+
+            }
+            case nodeType::FOR_TO_DO:{
+                int checks = 0;
+                Scope::type_t condType = typeOf(dynamic_cast<const TokenASTNode*>(parNode->_getChild(1)), env);
+                //not sure what type the first expr has to be, I think it can be anything
+                if(condType != "int"){
+                    semantic_error(parNode, "Conditional must be integer, got: " + condType);
+                    checks++;
+                }
+                checks += semantic_checks(parNode->_getChild(0),env);
+                checks += semantic_checks(parNode->_getChild(2),env);
+                // The Do statement
+                std::shared_ptr<Scope> newEnv = std::make_shared<Scope>(*env);
+                checks += semantic_checks(parNode->_getChild(3),newEnv);
+
+                return checks;
+
+            }
             case nodeType::LET_IN_END: {
                 // copy env to newEnv
                 std::shared_ptr<Scope> newEnv = std::make_shared<Scope>(*env);
-                int check1 = semantic_checks(parNode->_getChild(0), newEnv);
-                int check2 = semantic_checks(parNode->_getChild(1), newEnv);
+                auto letChild = parNode->_getChild(0);
+                auto inChild = parNode->_getChild(1);
+                int check1 = 0;
+                int check2 = 0;
+                if(letChild != nullptr){
+                    check1 = semantic_checks(parNode->_getChild(0), newEnv);
+                }
+                if(inChild != nullptr){
+                    check2 = semantic_checks(parNode->_getChild(1), newEnv);
+                }
                 return check1 + check2; // will error if either check errors 
             } // newEnv gets deleted here when it goes out of scope
             case nodeType::DECS:

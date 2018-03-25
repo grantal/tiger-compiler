@@ -117,6 +117,9 @@ class ParentASTNode : public ASTNode {
   // returns child for testing
   ASTptr _getChild(int index) const
   {
+  	if(index >= static_cast<int>(children_.size())){
+  		return nullptr;
+  	}
     return children_[index];
   }
 
