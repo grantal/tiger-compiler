@@ -60,9 +60,9 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
  | INTLIT                      {$$ = new TokenASTNode(INTLIT, $1); free($1);}
  | STRINGLIT                   {$$ = new TokenASTNode(STRINGLIT, $1); free($1);}
 /* array and record creation */
- | id '['exp']' OF exp         {$$ = new ParentASTNode("Array", nodeType::ARRAY, {new ParentASTNode("type id",nodeType::TYPE_ID,{$1}), $3, $6});}
- | typeId '{' '}'              {$$ = new ParentASTNode("Record", nodeType::RECORD,{$1});}
- | typeId '{' recs '}'         {$$ = new ParentASTNode("Record", nodeType::RECORD,{$1,$3});}
+ | id '['exp']' OF exp         {$$ = new ParentASTNode("Array", nodeType::ARRAY_DEC, {new ParentASTNode("type id",nodeType::TYPE_ID,{$1}), $3, $6});}
+ | typeId '{' '}'              {$$ = new ParentASTNode("Record", nodeType::RECORD_DEC,{$1});}
+ | typeId '{' recs '}'         {$$ = new ParentASTNode("Record", nodeType::RECORD_DEC,{$1,$3});}
 /* Objects creation */
  | NEW typeId                  {$$ = new ParentASTNode("new Object", nodeType::OBJECT, {$2});}
 /* Variables, filed, elements of an array */

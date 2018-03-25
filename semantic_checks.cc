@@ -25,6 +25,15 @@ Scope::type_t typeOf(ASTNode::ASTptr node, std::shared_ptr<Scope> env){
     return "int";
 }
 
+//Should create type from recVals and be able to handle being passed node==nullptr.
+Scope::rec_t recTypeOf(ASTNode::ASTptr node, std::shared_ptr<Scope> env){
+    // Dummy code, needs implementing
+    node->toStr();
+    env->isType("int");
+    Scope::rec_t retRecT;
+    return retRecT;
+}
+
 int semantic_checks(ASTNode::ASTptr node, std::shared_ptr<Scope> env) {
     if (const ParentASTNode* parNode = dynamic_cast<const ParentASTNode*>(node)) {
         // print full ast
@@ -34,6 +43,40 @@ int semantic_checks(ASTNode::ASTptr node, std::shared_ptr<Scope> env) {
                 return semantic_checks(parNode->_getChild(0), env);
                 // don't need break since we return
             // make new env that we'll add to with our decs and use in our exps
+            case nodeType::ARRAY_DEC:{
+                int checks = 0;
+                Scope::type_t id = typeOf(dynamic_cast<const TokenASTNode*>(parNode->_getChild(0)), env);
+                if (!env->isVar(id)){
+                    semantic_error(parNode, "Array type " + id + " does not exist.");
+                    checks++;
+                }
+                Scope::type_t size = typeOf(dynamic_cast<const TokenASTNode*>(parNode->_getChild(1)), env);
+                if (size != "int"){
+                    semantic_error(parNode, "Array size must be of type int. got type: " + size + ".");
+                    checks++;
+                }
+                Scope::type_t elementType = typeOf(dynamic_cast<const TokenASTNode*>(parNode->_getChild(2)), env);
+                if(env->getArrayType(id) != elementType){
+                    semantic_error(parNode, "Array type mismatch, default array element does not match array type.");
+                    checks++;
+                }
+                return checks;
+            }
+            case nodeType::RECORD_DEC:{
+                int checks = 0;
+                Scope::type_t id = typeOf(dynamic_cast<const TokenASTNode*>(parNode->_getChild(0)), env);
+                if (!env->isVar(id)){
+                    semantic_error(parNode, "Record type " + id + " does not exist.");
+                    checks++;
+                }
+
+                Scope::rec_t recType = recTypeOf(parNode->_getChild(1), env);
+                if(env->getRecTypes(id) != recType){
+                    semantic_error(parNode, "Record type mismatch, declared record does not match record type.");
+                    checks++;
+                }
+                return checks;
+            }
             case nodeType::WHILE_DO:
             case nodeType::IF_THEN:{
                 int checks = 0;
