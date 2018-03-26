@@ -16,6 +16,10 @@ class Scope {
   public:
     using type_t = std::string; 
     using TypeT = std::set<type_t>;
+    using rec_t = std::set<type_t>;
+    using array_t = type_t; //should only ever have two entries
+    using RecTypeT = std::map<type_t,rec_t>;
+    using ArrayTypeT = std::map<type_t,array_t>;
     // symbol table is a map from identifiers (strings) to types (strings)
     // I may need to change sym_val_t later if I need to store more than just the type
     using sym_id_t = std::string;
@@ -23,7 +27,7 @@ class Scope {
     using SymT = std::map<sym_id_t, sym_val_t>;
   private:
     // default types in tiger
-    const TypeT defaultTypes = {"int", "string", "array", "record","invalid"};
+    const TypeT defaultTypes = {"int", "string", "array", "record",""};
 
   public:
     // constructors and destructor
@@ -64,6 +68,14 @@ class Scope {
     virtual sym_val_t getFuncType(sym_id_t f) {
         return funcs_.at(f);
     } 
+    // get type list of a record type
+    virtual rec_t getRecTypes(type_t rT) {
+        return recTypeT_[rT];
+    }
+    // get type of elements of array type
+    virtual type_t getArrayType(type_t aT) {
+        return arrayTypeT_[aT];
+    }
     // check if variable or function exist
     virtual bool isVar(sym_id_t v) {
         return vars_.find(v) != vars_.end();
@@ -73,6 +85,8 @@ class Scope {
     } 
 
   private:
+    RecTypeT recTypeT_;
+    ArrayTypeT arrayTypeT_;
     TypeT types_; 
     SymT vars_;
     SymT funcs_;

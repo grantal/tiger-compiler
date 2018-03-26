@@ -30,9 +30,9 @@ namespace tiger {
 
 enum class nodeType{
 	PROGRAM,		//tiger.y 51-52
-	ARRAY, 			//tiger.y 59
+	ARRAY_DEC, 			//tiger.y 59
 	EMPTY_REC, 		//tiger.y 60,
-	RECORD, 		//tiger.y 60-61
+	RECORD_DEC, 	//tiger.y 60-61
 	REC_VAL, 		//tiger.y 105 - 106
 	OBJECT, 		//tiger.y 63
 	REFERENCE, 		//tiger.y (reference) 65-66, 116-119
