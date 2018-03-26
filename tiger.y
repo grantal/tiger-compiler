@@ -19,7 +19,7 @@ using namespace tiger;
 
 %locations
 
-%type<node> id typeId exp exps expList lValue decs dec ty tyFields classFields classField varDec recs
+%type<node> id typeId exp opExp exps expList lValue decs dec ty tyFields classFields classField varDec recs
 
 %token<strVal> INTLIT STRINGLIT ID
 %token NIL NEW TYPE ARRAY OF VAR ASSIGNMENT FUNCTION
@@ -56,45 +56,9 @@ id: ID                         {$$ = new TokenASTNode(ID, $1, @1); free($1);}
 typeId: id                     {$$ = new ParentASTNode("type id",nodeType::TYPE_ID,{$1}, @1);} 
 ;
 
-exp: NIL                       {$$ = new TokenASTNode(NIL, "nil", @1); }
- | INTLIT                      {$$ = new TokenASTNode(INTLIT, $1, @1); free($1);}
- | STRINGLIT                   {$$ = new TokenASTNode(STRINGLIT, $1, @1); free($1);}
-/* array and record creation */
- | id '['exp']' OF exp         {$$ = new ParentASTNode("Array", nodeType::ARRAY_DEC, {new ParentASTNode("type id",nodeType::TYPE_ID,{$1},@1), $3, $6}, @1);}
- | typeId '{' '}'              {$$ = new ParentASTNode("Record", nodeType::RECORD_DEC,{$1},@1);}
- | typeId '{' recs '}'         {$$ = new ParentASTNode("Record", nodeType::RECORD_DEC,{$1,$3},@1);}
-/* Objects creation */
- | NEW typeId                  {$$ = new ParentASTNode("new Object", nodeType::OBJECT, {$2},@1);}
-/* Variables, filed, elements of an array */
- | lValue                      {$$ = $1;}
- | id                          {$$ = new ParentASTNode("Reference", nodeType::REFERENCE, {$1}, @1);}
-/* function call */
- | id '(' ')'                  {$$ = new ParentASTNode("Call function", nodeType::CALL_FUNC,{$1}, @1);}
- | id '(' expList ')'          {$$ = new ParentASTNode("Call function", nodeType::CALL_FUNC,{$1,$3}, @1);}
-/* method call */
- | lValue '(' ')'              {$$ = new ParentASTNode("Call Method", nodeType::CALL_METHOD,{$1}, @1);}
- | lValue '(' expList ')'      {$$ = new ParentASTNode("Call Method", nodeType::CALL_METHOD,{$1,$3}, @1);}
-/* Operations */
- | '-' exp                     {$$ = new ParentASTNode("Negate", nodeType::NEGATE,{$2}, @1);}
- | exp '+' exp                 {$$ = new ParentASTNode("Add (+)", nodeType::ADD,{$1,$3}, @1);}
- | exp '-' exp                 {$$ = new ParentASTNode("Subtract (-)", nodeType::SUB,{$1,$3}, @1);}
- | exp '*' exp                 {$$ = new ParentASTNode("Mulitply (*)", nodeType::MULT,{$1,$3}, @1);}
- | exp '/' exp                 {$$ = new ParentASTNode("Divide (/)", nodeType::DIV,{$1,$3}, @1);}
- | exp '=' exp                 {$$ = new ParentASTNode("Equal (=)", nodeType::EQUAL,{$1,$3}, @1);}
- | exp NOTEQUAL exp            {$$ = new ParentASTNode("Not Equal (<>)", nodeType::NOT_EQUAL,{$1,$3}, @1);}
- | exp '>' exp                 {$$ = new ParentASTNode("Greater (>)", nodeType::GREATER,{$1,$3}, @1);}
- | exp '<' exp                 {$$ = new ParentASTNode("Lesser (<)", nodeType::LESSER,{$1,$3}, @1);}
- | exp EGREATER exp            {$$ = new ParentASTNode("Equal or Greater (>=)", nodeType::EQ_GREATER,{$1,$3}, @1);}
- | exp ELESS exp               {$$ = new ParentASTNode("Equal or Less (<=)", nodeType::EQ_LESS,{$1,$3}, @1);}
- | exp '&' exp                 {$$ = new ParentASTNode("And (&)", nodeType::AND,{$1,$3}, @1);}
- | exp '|' exp                      {$$ = new ParentASTNode("or (|)",nodeType::OR, {$1, $3}, @1);}
- | '(' exps ')'                     {$$ = new ParentASTNode("sequence",nodeType::SEQUENCE, {$2}, @1);}
- | '(' ')'                          {$$ = new ParentASTNode("sequence",nodeType::SEQUENCE, {}, @1);} 
-/*Assignment */
- | lValue ASSIGNMENT exp            {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3}, @1);}
- | id ASSIGNMENT exp                {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3}, @1);}
+exp
 /*Control structures */
- | IF exp THEN exp                  {$$ = new ParentASTNode("if then",nodeType::IF_THEN, {$2, $4}, @1);}
+ : IF exp THEN exp                  {$$ = new ParentASTNode("if then",nodeType::IF_THEN, {$2, $4}, @1);}
  | IF exp THEN exp ELSE exp         {$$ = new ParentASTNode("if then else",nodeType::IF_THEN, {$2, $4, $6}, @1);}
  | WHILE exp DO exp                 {$$ = new ParentASTNode("while do",nodeType::WHILE_DO, {$2, $4}, @1);}
  | FOR id ASSIGNMENT exp TO exp DO exp {$$ = new ParentASTNode("for to do",nodeType::FOR_TO_DO, {$2, $4, $6, $8}, @1);}
@@ -103,8 +67,45 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil", @1); }
  | LET IN exps END                  {$$ = new ParentASTNode("let in end", nodeType::LET_IN_END, {nullptr, $3}, @1);}
  | LET decs IN END                  {$$ = new ParentASTNode("let in end", nodeType::LET_IN_END, {$2, nullptr}, @1);}
  | LET decs IN exps END             {$$ = new ParentASTNode("let in end", nodeType::LET_IN_END, {$2, $4}, @1);}
+/* array and record creation */
+ | id '['exp']' OF exp         {$$ = new ParentASTNode("Array", nodeType::ARRAY_DEC, {new ParentASTNode("type id",nodeType::TYPE_ID,{$1},@1), $3, $6}, @1);}
+ | typeId '{' '}'              {$$ = new ParentASTNode("Record", nodeType::RECORD_DEC,{$1},@1);}
+ | typeId '{' recs '}'         {$$ = new ParentASTNode("Record", nodeType::RECORD_DEC,{$1,$3},@1);}
+/*Assignment */
+ | lValue ASSIGNMENT exp            {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3}, @1);}
+ | id ASSIGNMENT exp                {$$ = new ParentASTNode("assignment",nodeType::ASSIGNMENT_, {$1, $3}, @1);}
+ | opExp
 ;
 /*=========HELPERS FOR EXP=============*/
+opExp
+/* Variables, filed, elements of an array */
+ : lValue                      {$$ = $1;}
+ | id                          {$$ = new ParentASTNode("Reference", nodeType::REFERENCE, {$1}, @1);}
+/* function call */
+ | id '(' ')'                  {$$ = new ParentASTNode("Call function", nodeType::CALL_FUNC,{$1}, @1);}
+ | id '(' expList ')'          {$$ = new ParentASTNode("Call function", nodeType::CALL_FUNC,{$1,$3}, @1);}
+/* multiple expressions */
+ | '(' exps ')'                     {$$ = new ParentASTNode("sequence",nodeType::SEQUENCE, {$2}, @1);}
+ | '(' ')'                          {$$ = new ParentASTNode("sequence",nodeType::SEQUENCE, {}, @1);} 
+/* Operations */
+ | '-' opExp                     {$$ = new ParentASTNode("Negate", nodeType::NEGATE,{$2}, @1);}
+ | opExp '+' opExp                 {$$ = new ParentASTNode("Add (+)", nodeType::ADD,{$1,$3}, @1);}
+ | opExp '-' opExp                 {$$ = new ParentASTNode("Subtract (-)", nodeType::SUB,{$1,$3}, @1);}
+ | opExp '*' opExp                 {$$ = new ParentASTNode("Mulitply (*)", nodeType::MULT,{$1,$3}, @1);}
+ | opExp '/' opExp                 {$$ = new ParentASTNode("Divide (/)", nodeType::DIV,{$1,$3}, @1);}
+ | opExp '=' opExp                 {$$ = new ParentASTNode("Equal (=)", nodeType::EQUAL,{$1,$3}, @1);}
+ | opExp NOTEQUAL opExp            {$$ = new ParentASTNode("Not Equal (<>)", nodeType::NOT_EQUAL,{$1,$3}, @1);}
+ | opExp '>' opExp                 {$$ = new ParentASTNode("Greater (>)", nodeType::GREATER,{$1,$3}, @1);}
+ | opExp '<' opExp                 {$$ = new ParentASTNode("Lesser (<)", nodeType::LESSER,{$1,$3}, @1);}
+ | opExp EGREATER opExp            {$$ = new ParentASTNode("Equal or Greater (>=)", nodeType::EQ_GREATER,{$1,$3}, @1);}
+ | opExp ELESS opExp               {$$ = new ParentASTNode("Equal or Less (<=)", nodeType::EQ_LESS,{$1,$3}, @1);}
+ | opExp '&' opExp                 {$$ = new ParentASTNode("And (&)", nodeType::AND,{$1,$3}, @1);}
+ | opExp '|' opExp                      {$$ = new ParentASTNode("or (|)",nodeType::OR, {$1, $3}, @1);}
+/* Tokens */
+ | NIL                         {$$ = new TokenASTNode(NIL, "nil", @1); }
+ | INTLIT                      {$$ = new TokenASTNode(INTLIT, $1, @1); free($1);}
+ | STRINGLIT                   {$$ = new TokenASTNode(STRINGLIT, $1, @1); free($1);}
+;
 recs
  : id '=' exp                    {$$ = new ParentASTNode("Record Value", nodeType::REC_VAL,{$1,$3}, @1);}
  | id '=' exp ',' recs           {$$ = new ParentASTNode("Record Value", nodeType::REC_VAL,{$1,$3,$5}, @1);}

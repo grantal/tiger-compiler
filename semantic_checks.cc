@@ -13,7 +13,8 @@ void semantic_error(ASTNode::ASTptr node, std::string error){
    std::cerr << error << std::endl; 
 }
 
-#define UNUSED(x) (void)(x)
+#define UNUSED(x) (void)(x) // temporary, will be removed once we fill out our functions
+#define TYPELESS "" //what typeOf will return for a statement with no type like x := 1
 // tells you what type an ast evaluates to
 // give it 1+1, it will return int
 // **maybe we should have an "invalid" type since we will want to get the type of both
@@ -75,7 +76,20 @@ int semantic_checks(ASTNode::ASTptr node, std::shared_ptr<Scope> env) {
                 }
                 return checks;
             }
-            case nodeType::WHILE_DO:
+            case nodeType::WHILE_DO: {
+                int checks = semantic_checks(parNode->_getChild(0), env);
+                checks += semantic_checks(parNode->_getChild(1), env);
+                // only check type of child if it has no errors 
+                // the body of the while needs to be typeless
+                if (checks == 0) {
+                    auto bodyType = typeOf(parNode->_getChild(1), env); 
+                    if (bodyType != TYPELESS){
+                        semantic_error(parNode, "Body of while loop must produce no value. Instead it produces value of type " + bodyType + ".");
+                        return 1; 
+                    }
+                }
+                return checks;
+            }
             case nodeType::IF_THEN:{
                 int checks = 0;
                 Scope::type_t condType = typeOf(dynamic_cast<const TokenASTNode*>(parNode->_getChild(0)), env);
