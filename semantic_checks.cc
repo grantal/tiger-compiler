@@ -11,26 +11,24 @@ namespace tiger {
 void semantic_error(ASTNode::ASTptr node, std::string error){
    std::cerr << "Error at " << node->getLine() << "," << node->getCol() << ": "; 
    std::cerr << error << std::endl; 
-   node->toStr(); //compiler got mad at me for unused parameter. We'll use this to get line numbers later
 }
 
+#define UNUSED(x) (void)(x)
 // tells you what type an ast evaluates to
 // give it 1+1, it will return int
 // **maybe we should have an "invalid" type since we will want to get the type of both
 // literal values and references, and if a reference is not defined, it will probably be
 // easier to do so from the place where we call this function.
 Scope::type_t typeOf(ASTNode::ASTptr node, std::shared_ptr<Scope> env){
-    // these are here so compiler won't complain
-    node->toStr();
-    env->isType("int");
+    UNUSED(node);
+    UNUSED(env);
     return "int";
 }
 
 //Should create type from recVals and be able to handle being passed node==nullptr.
 Scope::rec_t recTypeOf(ASTNode::ASTptr node, std::shared_ptr<Scope> env){
-    // Dummy code, needs implementing
-    node->toStr();
-    env->isType("int");
+    UNUSED(node);
+    UNUSED(env);
     Scope::rec_t retRecT;
     return retRecT;
 }
