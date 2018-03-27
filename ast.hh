@@ -7,6 +7,19 @@
  * ParentASTNOde, like StringASTNode but for nonterminals
  */
 #pragma once
+// pretty horrid workaround to let us have something of type YYLTYPE in ast.hh
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
 #include <string>
 #include <vector>
 
@@ -17,9 +30,9 @@ namespace tiger {
 
 enum class nodeType{
 	PROGRAM,		//tiger.y 51-52
-	ARRAY, 			//tiger.y 59
+	ARRAY_DEC, 			//tiger.y 59
 	EMPTY_REC, 		//tiger.y 60,
-	RECORD, 		//tiger.y 60-61
+	RECORD_DEC, 	//tiger.y 60-61
 	REC_VAL, 		//tiger.y 105 - 106
 	OBJECT, 		//tiger.y 63
 	REFERENCE, 		//tiger.y (reference) 65-66, 116-119
@@ -70,10 +83,42 @@ class ASTNode {
   using string_t = std::string; //tiger.y for nodes defined by strings, ">=", "<>" etc
   using ASTptr = const ASTNode*; //tiger.y Can't use smart ptr in union :(
 
-  ASTNode() = default;
+  ASTNode(int line, int col)
+   : line_(line), col_(col)
+  {}
   virtual ~ASTNode() = default;
   virtual std::string toStr(int depth = 0) const = 0; //tiger.y For printing purposes
+  // for error reporting
+  virtual int getLine() const
+  {
+    return line_;
+  }
+  virtual int getCol() const
+  {
+    return col_;
+  }
+ private:
+  const int line_;
+  const int col_;
 };
+
+// trying to dodge circular includes here
+// this type is defined in tiger.tab.h 
+/* Location type.  */
+/*
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+*/
 
 ///////////////////////////////////////////////////////////////////////////////
 //tiger.y class for tokens like ID, String literals or interger literals that stores
@@ -81,8 +126,8 @@ class ASTNode {
 //tiger.y value = "_main". They also can't have children
 class TokenASTNode : public ASTNode {
  public:
-  TokenASTNode(token_t token, string_t value)
-   : ASTNode(), token_(token), value_(value)
+  TokenASTNode(token_t token, string_t value, YYLTYPE t)
+   : ASTNode(t.first_line, t.first_column), token_(token), value_(value)
   {}
   virtual ~TokenASTNode() = default;
   virtual string_t toStr(int depth = 0) const;
@@ -105,8 +150,8 @@ class TokenASTNode : public ASTNode {
 // Node with token "ID"
 class ParentASTNode : public ASTNode {
  public:
-  ParentASTNode(string_t desc, nodeType nType, std::vector<ASTptr> children)
-   : ASTNode(), desc_(desc), nodeType_(nType), children_(children)
+  ParentASTNode(string_t desc, nodeType nType, std::vector<ASTptr> children, YYLTYPE t)
+   : ASTNode(t.first_line, t.first_column), desc_(desc), nodeType_(nType), children_(children)
   {}
   virtual ~ParentASTNode();
   virtual string_t toStr(int depth = 0) const;
@@ -117,6 +162,9 @@ class ParentASTNode : public ASTNode {
   // returns child for testing
   ASTptr _getChild(int index) const
   {
+  	if(index >= static_cast<int>(children_.size())){
+  		return nullptr;
+  	}
     return children_[index];
   }
 

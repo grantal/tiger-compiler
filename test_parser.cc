@@ -29,7 +29,7 @@ TEST_CASE("test that intlits get parsed","[syntax]") {
 
 TEST_CASE("Test Keywords shows up in ast", "[syntax]") {
     const std::vector<std::string> keywords = {
-        "nil", "id", "32", "\"string\"", "new", "let", 
+        "nil", "id", "32", "\"string\"", "let", 
         "+", "-", "*", "/", "=", "<>", "<", ">",
         "<=", ">=", "&", "|", "assignment", "if",
         "else", "while", "for", "break",
@@ -38,7 +38,7 @@ TEST_CASE("Test Keywords shows up in ast", "[syntax]") {
     };
 
     const std::vector<std::string> statements = {
-        "nil", "id", "32", "\"string\"", "new id", "let in end",
+        "nil", "id", "32", "\"string\"", "let in end",
         "1+1", "1-1", "1*1", "1/1", "1=1", "1<>1", "1<1", "1>1",
         "1<=1", "1>=1", "1&1", "1|1", "id := 2", "if 1 then 2",
         "if 1 then 2 else 3", "while 4 do 5", "for i := 1 to 2 do 3", "break",
@@ -74,14 +74,6 @@ TEST_CASE("Test structure of some satements", "[syntax]") {
             REQUIRE(arrayCreate->_getChild(2)->toStr().find("init") != std::string::npos);
     } 
 
-    SECTION("object creation") {
-            auto b = buffman::Buffman("new id");
-            REQUIRE(yyparse() == 0); 
-            ParentASTNode* objectCreate = (ParentASTNode*)programNode->_getChild(0);
-            REQUIRE(objectCreate->toStr().find("new") != std::string::npos);
-            REQUIRE(objectCreate->_getChild(0)->toStr().find("id") != std::string::npos);
-            REQUIRE(objectCreate->_getChild(0)->toStr().find("new") == std::string::npos);
-    } 
     SECTION("function call") {
             auto b = buffman::Buffman("id(1)");
             REQUIRE(yyparse() == 0);

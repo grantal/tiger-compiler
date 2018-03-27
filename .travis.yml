@@ -1,0 +1,11 @@
+language: cpp
+addons: &clang40
+    apt:
+        packages:
+            - clang-5.0
+            - g++-5
+        sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-5.0
+compiler: clang++-5.0
+script: make test
