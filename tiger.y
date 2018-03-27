@@ -106,7 +106,7 @@ exp: NIL                       {$$ = new TokenASTNode(NIL, "nil"); }
 ;
 /*=========HELPERS FOR EXP=============*/
 recs
- : id '=' exp                    {$$ = new ParentASTNode("Record Value", nodeType::REC_VAL,{$1,$3});}
+ : id '=' exp                    {$$ = new ParentASTNode("Record Value", nodeType::REC_VAL,{$1,$3,nullptr});}
  | id '=' exp ',' recs           {$$ = new ParentASTNode("Record Value", nodeType::REC_VAL,{$1,$3,$5});}
 ;
 /* exps separated by commas */

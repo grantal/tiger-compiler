@@ -9,6 +9,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <vector>
 
 namespace tiger {
 
@@ -16,7 +17,7 @@ class Scope {
   public:
     using type_t = std::string; 
     using TypeT = std::set<type_t>;
-    using rec_t = std::set<type_t>;
+    using rec_t = std::vector<type_t>;
     using array_t = type_t; //should only ever have two entries
     using RecTypeT = std::map<type_t,rec_t>;
     using ArrayTypeT = std::map<type_t,array_t>;
