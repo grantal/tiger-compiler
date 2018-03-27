@@ -13,6 +13,13 @@ void semantic_error(ASTNode::ASTptr node, std::string error){
    node->toStr(); //compiler got mad at me for unused parameter. We'll use this to get line numbers later
 }
 
+bool typeCheck(Scope::type_t LHS, Scope::type_t RHS,std::shared_ptr<Scope> env){
+	if(env->isPrimitiveType(RHS)){
+		return env->getPrimitiveType(LHS) == RHS;
+	}
+	return LHS == RHS;
+}
+
 Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope> env,int &checks) {
     if (const ParentASTNode* parNode = dynamic_cast<const ParentASTNode*>(node)) {
         // print full ast
@@ -60,7 +67,7 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                         semantic_error(parNode, "Record Value type " + valueID + " does not exist.");
                         checks++;
                     }
-                    if(valueID != valueType){//might need something more sophiscated for this comparison later
+                    if(!typeCheck(valueID,valueType,env)){//might need something more sophiscated for this comparison later
                         semantic_error(parNode, "Record Value type mismatch, declared record value does not match record value type.");
                         checks++;
                     }
@@ -135,9 +142,10 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 if (env->isType(id)) {
                     semantic_error(parNode, "attempting to redefine type: " + id);
                     checks++;
-                }        
-                env->insertType(id);
-                semantic_checks_helper(parNode->_getChild(1), env,checks);
+                }
+
+                Scope::type_t baseType  = semantic_checks_helper(parNode->_getChild(1), env,checks);
+                env->emplaceType(id,baseType);
                 return "";
             }
             case nodeType::VAR_DEC:{
@@ -151,7 +159,7 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                     Scope::type_t typeId = semantic_checks_helper(parNode->_getChild(2), env,checks); 
                     if (env->isType(typeId)) {
                         // type of variable needs to be type of expression
-                        if (typeId != expType){ //*might neet more sophisticated comparion
+                        if (typeCheck(typeId, expType, env)){ //*might neet more sophisticated comparion
                             semantic_error(parNode, "variable " + id + " of type " + typeId + " was set to an expression of type " + expType);
                             checks++;
                         }
