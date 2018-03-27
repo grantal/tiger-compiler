@@ -46,6 +46,8 @@ class Scope {
         if(!isType(newT)){
             types_.emplace(newT, baseT);
         }
+        // uncomment the next line if you want to print types_
+        // for (auto it=types_.begin(); it!=types_.end(); ++it) std::cout << it->first << " => " << it->second << '\n';
     }
     // I think the emplace functions will be far more useful
     virtual void insertVar(std::pair<sym_id_t,sym_val_t> newV) {

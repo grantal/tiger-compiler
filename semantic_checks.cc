@@ -164,14 +164,29 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 } else if (parNode->numChildren() == 2){
                     semantic_checks_helper(parNode->_getChild(0), env,checks);
                     semantic_checks_helper(parNode->_getChild(1), env,checks);
-                } 
-                // if there are not one or two children, something has gone terribly wrong
+                } else {
+                    // if there are not one or two children, something has gone terribly wrong
+                    checks++;
+                }
                 return "";
             case nodeType::TYPE_DEC:{ 
                 semantic_checks_helper(parNode->_getChild(0), env,checks);
                 // add id to the env
                 ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
                 Scope::type_t baseType = semantic_checks_helper(parNode->_getChild(1), env,checks);
+                // recursive type check
+                // check the base type of the base type of the base type,... etc of the type we just declared
+                // and make sure we don't get back to this type
+                auto currType = baseType;
+                while (currType != TYPELESS){
+                    if (currType == id){
+                        semantic_error(parNode, "bad recursive type definition " + id + " = " + baseType);
+                        checks++; 
+                        return "";
+                    }
+                    // set currType to it's base type
+                    currType = env->getUserType(currType); 
+                }
                 env->emplaceType(id,baseType);
                 return "";
             }
@@ -278,6 +293,12 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 }
                 return TYPELESS;
             }
+            case nodeType::TYPE_ID: {
+                // the type of a type_id will be the id it stores
+                // so var a: blarg := 1 will set a to type blarg
+                ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
+                return id;
+            } 
             default:
                 return "";
         }
