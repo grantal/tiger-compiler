@@ -112,20 +112,27 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
 
             }
             case nodeType::FOR_TO_DO:{
-                Scope::type_t condType = semantic_checks_helper(parNode->_getChild(1),env,checks);
-                //not sure what type the first expr has to be, I think it can be anything
-                if(condType != "int"){
-                    semantic_error(parNode, "Conditional must be integer, got: " + condType);
+                auto lowType = semantic_checks_helper(parNode->_getChild(1),env,checks);
+                auto hiType  = semantic_checks_helper(parNode->_getChild(2),env,checks);
+                // low and high of the iterator must be ints
+                if(lowType != "int"){
+                    semantic_error(parNode, "iterator low must be integer, got: " + lowType);
                     checks++;
                 }
-                semantic_checks_helper(parNode->_getChild(0),env,checks);
-                semantic_checks_helper(parNode->_getChild(2),env,checks);
-                // The Do statement
+                if(hiType != "int"){
+                    semantic_error(parNode, "iterator high must be integer, got: " + hiType);
+                    checks++;
+                }
+                semantic_checks_helper(parNode->_getChild(0), env,checks);
+                // add the iterator variable to the env of the body
+                // the variable "id" stores the name of the iterator
+                ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
                 std::shared_ptr<Scope> newEnv = std::make_shared<Scope>(*env);
+                newEnv->inLoop = true;
+                newEnv->emplaceVar(id, "int");
+                newEnv->iterName = id;
                 semantic_checks_helper(parNode->_getChild(3),newEnv,checks);
-
-                return "";
-
+                return TYPELESS;
             }
             case nodeType::LET_IN_END: {
                 // copy env to newEnv
@@ -161,7 +168,9 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 return "";
             }
             case nodeType::VAR_DEC:{
-                Scope::type_t id = semantic_checks_helper(parNode->_getChild(0), env,checks);
+                semantic_checks_helper(parNode->_getChild(0), env,checks);
+                // make sure varible with this id has not been declared
+                ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
                 if (env->isVar(id)){
                     semantic_error(parNode, "variable " + id + "already exists");
                 }
@@ -249,6 +258,18 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 }
                 return "int"; //bool 1 or 0
             }
+            case nodeType::ASSIGNMENT_: {
+                semantic_checks_helper(parNode->_getChild(0), env,checks);
+                semantic_checks_helper(parNode->_getChild(1), env,checks);
+                // check if we are trying to assign to the iterator of the for loop we're in 
+                if(auto idNode = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))){ 
+                    if(idNode->getVal() == env->iterName){
+                        semantic_error(parNode, "Attempting to assign to iterator variable " + env->iterName + ".");
+                        checks++;
+                    }
+                }
+                return TYPELESS;
+            }
             default:
                 return "";
         }
@@ -256,15 +277,24 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
     else if (const TokenASTNode* tokNode = dynamic_cast<const TokenASTNode*>(node)) {
         //Need to implement acutal integer values for INTLIT STRINGLIT values
         tiger::ASTNode::token_t tokType = tokNode->getToken();
-        if(tokType == INTLIT){
+        switch(tokType) {
+        case INTLIT:
             return "int";
-        }else if(tokType == STRINGLIT){
+        case STRINGLIT:
             return "string";
+        case BREAK: 
+            // if we see a break, we must be inside a loop
+            if(!env->inLoop) {
+                semantic_error(tokNode, "\"break\" outside of loop");
+                checks++;
+            }
+        default:
+            return "";
         }
-        return "";
     } 
     // not TokenNode or ParentNode, so something went wrong
     else {
+        semantic_error(node, "Node in AST that is neither TokenASTNode nor ParentASTNode");
         checks++;
         return "";
     }

@@ -33,7 +33,7 @@ class Scope {
 
   public:
     // constructors and destructor
-    Scope(): primTypes_(defaultTypes), types_(), vars_(), funcs_(){};   
+    Scope(): inLoop(false), iterName(""), primTypes_(defaultTypes), types_(), vars_(), funcs_() {};   
     Scope(const Scope &other) = default;   
     virtual ~Scope() = default;
         
@@ -109,6 +109,10 @@ class Scope {
         }
         return currentType;
     }
+    // these variables track if we're in a loop and what the iterator variable
+    // name is
+    bool inLoop;
+    sym_id_t iterName;
 
   private:
     RecTypeT recTypeT_;
