@@ -25,9 +25,9 @@ TEST_CASE("test semantics for appel's testfiles","[semantics]") {
         { 9, 3},
         {10, 2},
         {11, 2},
-        {13, 2},
-        {14, 2},
-        {15, 2},
+        {13, 3},
+        {14, 12},
+        {15, 3},
         {16, 2},
         {17, 2},
         {18, 2},
@@ -58,12 +58,10 @@ TEST_CASE("test semantics for appel's testfiles","[semantics]") {
         yyin = fopen(filename, "r");
         auto b = buffman::Buffman(yyin);
         if (errFiles.find(i) == errFiles.end()){
-            /*
             SECTION("semantics for test" + std::to_string(i) + ".tig") {
                 REQUIRE(yyparse() == 0);
                 REQUIRE(semantic_checks(programNode.get()) == 0);
             }
-            */
         } else {
             SECTION("make sure test" + std::to_string(i) + ".tig errors") {
                 std::stringstream buffer;

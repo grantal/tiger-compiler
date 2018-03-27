@@ -107,7 +107,7 @@ opExp
  | STRINGLIT                   {$$ = new TokenASTNode(STRINGLIT, $1, @1); free($1);}
 ;
 recs
- : id '=' exp                    {$$ = new ParentASTNode("Record Value", nodeType::REC_VAL,{$1,$3}, @1);}
+ : id '=' exp                    {$$ = new ParentASTNode("Record Value", nodeType::REC_VAL,{$1,$3, nullptr}, @1);}
  | id '=' exp ',' recs           {$$ = new ParentASTNode("Record Value", nodeType::REC_VAL,{$1,$3,$5}, @1);}
 ;
 /* exps separated by commas */

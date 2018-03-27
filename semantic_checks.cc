@@ -74,6 +74,7 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                         checks++;
                     }
                     recType.push_back(valueID);
+                    currentNode = parNode->_getChild(2);
                 }
 
                 if(env->getRecTypes(id) != recType){
