@@ -94,11 +94,10 @@ class Scope {
         return funcs_.find(f) != funcs_.end();
     }
     virtual type_t getUserType(type_t t){
-        auto subType = types_.find(t);
-        if(subType != types_.end()){
+        if(types_.find(t) == types_.end()){
             return "";
         };
-        return *subType;
+        return types_.at(t);
     }
     virtual type_t getPrimitiveType(type_t t){
         type_t currentType = t;
