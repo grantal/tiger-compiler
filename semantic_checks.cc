@@ -158,13 +158,10 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 // if there are not one or two children, something has gone terribly wrong
                 return "";
             case nodeType::TYPE_DEC:{ 
-                Scope::type_t id = semantic_checks_helper(parNode->_getChild(0), env,checks);
-                if (env->isType(id)) {
-                    semantic_error(parNode, "attempting to redefine type: " + id);
-                    checks++;
-                }
-
-                Scope::type_t baseType  = semantic_checks_helper(parNode->_getChild(1), env,checks);
+                semantic_checks_helper(parNode->_getChild(0), env,checks);
+                // add id to the env
+                ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
+                Scope::type_t baseType = semantic_checks_helper(parNode->_getChild(1), env,checks);
                 env->emplaceType(id,baseType);
                 return "";
             }

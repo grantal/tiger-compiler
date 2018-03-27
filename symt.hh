@@ -37,9 +37,6 @@ class Scope {
     Scope(const Scope &other) = default;   
     virtual ~Scope() = default;
         
-    // insertType and emplaceType act basically the same
-    // is seemed uneven to have an insert and emplace for var and func and not have both for
-    // type
     virtual void insertType(std::pair<type_t,type_t> newV) {
         if(!isType(newV.first)){
             types_.insert(newV);
