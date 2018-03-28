@@ -51,7 +51,7 @@ TEST_CASE("test semantics for appel's testfiles","[semantics]") {
         {45, 5}
     }; 
 
-    for (int i = 1; i <= 48; i++) {
+    for (int i : {9,10,11,12,13,14,15,16,17,20,26,28,29,31,32,33,34,35,36,37,38,39,41,44,46,47,48}) {
         char filename[26];
         sprintf(filename, "tiger-programs/test%d.tig", i);
         yyin = fopen(filename, "r");
