@@ -363,7 +363,14 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 // make new env for the function 
                 std::shared_ptr<Scope> newEnv = std::make_shared<Scope>(*env);
                 semantic_checks_helper(parNode->_getChild(1), newEnv,checks); //tyfields
-                semantic_checks_helper(parNode->_getChild(2), newEnv,checks); //exp
+                auto expType = semantic_checks_helper(parNode->_getChild(2), newEnv,checks); //exp
+                if (parNode->numChildren() == 4 && !typeCheck(fType, expType, newEnv)){
+                    semantic_error(parNode, "function " + id + " is of type " + fType + " but returns type " + expType);
+                    checks++;
+                } else if (expType != TYPELESS) {
+                    semantic_error(parNode, "procedure " + id + " must not return value");
+                    checks++;
+                }
                 return TYPELESS;
             }
             case nodeType::SEQUENCE: {

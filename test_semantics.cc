@@ -33,7 +33,7 @@ TEST_CASE("test semantics for appel's testfiles","[semantics]") {
         {18, 5},
         {19, 8},
         {20, 3},
-        //{21, 5},
+        {21, 5},
         {22, 7},
         {23, 7},
         {24, 5},
