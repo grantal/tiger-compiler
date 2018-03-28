@@ -162,8 +162,35 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 if (parNode->numChildren() == 1){
                     semantic_checks_helper(parNode->_getChild(0), env,checks);
                 } else if (parNode->numChildren() == 2){
+                    // if we're about the check a function declation, if the next few decs are
+                    // also functions we should add them to the env in case this function calls 
+                    // the function from the next dec
+                    if (auto funcNode = dynamic_cast<const ParentASTNode*>(parNode->_getChild(0))){
+                        if(funcNode->getNodeType() == nodeType::FUNC_DEC) { 
+                            auto decsNode = parNode; 
+                            do { 
+                                decsNode = dynamic_cast<const ParentASTNode*>(decsNode->_getChild(1)); 
+                                // the first funcNode we add should be the next dec after parNode
+                                if ((funcNode = dynamic_cast<const ParentASTNode*>(decsNode->_getChild(0)))){
+                                    if(funcNode->getNodeType() != nodeType::FUNC_DEC) { 
+                                        break;
+                                    }
+                                } else {
+                                    break;
+                                }
+                                ASTNode::string_t fid = dynamic_cast<const TokenASTNode*>(funcNode->_getChild(0))->getVal(); 
+                                Scope::type_t fType = TYPELESS;
+                                if (funcNode->numChildren() == 4){
+                                   fType = semantic_checks_helper(funcNode->_getChild(3),env,checks);
+                                }
+                                env->emplaceFunc(fid, fType);
+
+                            } while (decsNode->numChildren() == 2);
+                        }
+                    }
                     semantic_checks_helper(parNode->_getChild(0), env,checks);
                     semantic_checks_helper(parNode->_getChild(1), env,checks);
+                     
                 } else {
                     // if there are not one or two children, something has gone terribly wrong
                     checks++;
@@ -320,6 +347,32 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                     semantic_checks_helper(parNode->_getChild(1), env,checks);
                 }
                 return env->getFuncType(id); 
+            }
+            case nodeType::FUNC_DEC: {
+                ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
+                // function or procedure
+                Scope::type_t fType = TYPELESS;
+                if (parNode->numChildren() == 4){
+                   fType = semantic_checks_helper(parNode->_getChild(3),env,checks);
+                }
+                // need to add function to env before checking the exp because the function
+                // may be recursive
+                env->emplaceFunc(id, fType);
+                // make new env for the function 
+                std::shared_ptr<Scope> newEnv = std::make_shared<Scope>(*env);
+                semantic_checks_helper(parNode->_getChild(1), newEnv,checks); //tyfields
+                semantic_checks_helper(parNode->_getChild(2), newEnv,checks); //exp
+                return TYPELESS;
+            }
+            case nodeType::SEQUENCE: {
+                if (parNode->numChildren() == 1){
+                    return semantic_checks_helper(parNode->_getChild(0), env,checks);
+                } else if (parNode->numChildren() == 2){
+                    semantic_checks_helper(parNode->_getChild(0), env,checks);
+                    // the type of a sequence is always the type of it's last exp
+                    return semantic_checks_helper(parNode->_getChild(1), env,checks);
+                }
+                return TYPELESS;
             }
             default:
                 return "";
