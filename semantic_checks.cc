@@ -374,6 +374,20 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 }
                 return TYPELESS;
             }
+            case nodeType::TY_FIELDS: {
+                if (parNode->numChildren() == 0){
+                    return TYPELESS;
+                }
+                semantic_checks_helper(parNode->_getChild(0), env,checks);
+                ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
+                Scope::type_t expType = semantic_checks_helper(parNode->_getChild(1), env,checks);
+                if (parNode->numChildren() == 3){
+                    // recurse on rest of fields
+                    semantic_checks_helper(parNode->_getChild(2), env,checks);
+                }
+                env->emplaceVar(id, expType);
+                return TYPELESS;
+            }
             default:
                 return "";
         }
