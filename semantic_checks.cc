@@ -195,7 +195,8 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 // make sure varible with this id has not been declared
                 ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
                 if (env->isVar(id)){
-                    semantic_error(parNode, "variable " + id + "already exists");
+                    semantic_error(parNode, "variable " + id + " already exists");
+                    checks++;
                 }
                 Scope::type_t expType = semantic_checks_helper(parNode->_getChild(1), env,checks);
                 // this is the case that we are given a type
