@@ -103,20 +103,22 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 // Create newEnv for each flow of control (true and false(else))
                 std::shared_ptr<Scope> newEnvTrue = std::make_shared<Scope>(*env);
                 auto thenType = semantic_checks_helper(parNode->_getChild(1),newEnvTrue,checks);
-                // body of if cannot have type
-                if (thenType != TYPELESS) {
-                    semantic_error(parNode, "\"then\" part of if then statement must not have type. Instead has type " + thenType + ".");
-                    checks++;
-                }
 
                 if(parNode->numChildren() == 3){
                     std::shared_ptr<Scope> newEnvFalse = std::make_shared<Scope>(*env);
-                    // else cannot have type
+                    // else and then must have same type
                     auto elseType = semantic_checks_helper(parNode->_getChild(2),newEnvFalse,checks);
-                    if (elseType != TYPELESS) {
-                        semantic_error(parNode, "\"else\" part of if then else statement must not have type. Instead has type " + elseType + ".");
+                    if (elseType != thenType) {
+                        semantic_error(parNode, "\"then\" and \"else\" part of if then else statement must have same type. Instead, else has type " + elseType + " and then has type " + thenType + ".");
                         checks++;
+                        return TYPELESS;
                     }
+                    return elseType;
+                } 
+                // body of if cannot have type in simple if then. only in if then else
+                else if (thenType != TYPELESS) {
+                    semantic_error(parNode, "\"then\" part of if then statement must not have type. Instead has type " + thenType + ".");
+                    checks++;
                 }
 
                 return "";
