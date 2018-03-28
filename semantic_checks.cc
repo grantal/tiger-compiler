@@ -192,11 +192,7 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
             }
             case nodeType::VAR_DEC:{
                 semantic_checks_helper(parNode->_getChild(0), env,checks);
-                // make sure varible with this id has not been declared
                 ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
-                if (env->isVar(id)){
-                    semantic_error(parNode, "variable " + id + "already exists");
-                }
                 Scope::type_t expType = semantic_checks_helper(parNode->_getChild(1), env,checks);
                 // this is the case that we are given a type
                 if (parNode->numChildren() == 3){
@@ -299,6 +295,32 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
                 return id;
             } 
+            case nodeType::REFERENCE: {
+                // when you refer to a variable it must be defined
+                ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
+                if(!env->isVar(id)) {
+                    semantic_error(parNode, "undeclared variable " + id);
+                    checks++;
+                    return "";
+                }
+                return env->getVarType(id); 
+            }
+            case nodeType::EXP_LIST:
+                semantic_checks_helper(parNode->_getChild(0), env,checks);
+                return semantic_checks_helper(parNode->_getChild(1), env,checks);
+            case nodeType::CALL_FUNC: {
+                // need to make sure the id of our function exists
+                auto id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
+                if(!env->isFunc(id)) {
+                    semantic_error(parNode, "undeclared function " + id);
+                    checks++;
+                    return "";
+                }
+                if(parNode->numChildren() == 2){
+                    semantic_checks_helper(parNode->_getChild(1), env,checks);
+                }
+                return env->getFuncType(id); 
+            }
             default:
                 return "";
         }
