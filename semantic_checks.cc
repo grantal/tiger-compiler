@@ -258,11 +258,11 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 Scope::type_t leftType = semantic_checks_helper(parNode->_getChild(0), env,checks);
                 Scope::type_t rightType = semantic_checks_helper(parNode->_getChild(1), env,checks);
                 if (leftType != "int"){
-                    semantic_error(parNode, "Left hand side must be integer, got:" + leftType);
+                    semantic_error(parNode, "Left hand side must be integer, got: " + leftType);
                     checks++;
                 }
                 if (rightType != "int"){
-                    semantic_error(parNode, "Right hand side must be integer, got:" + leftType);
+                    semantic_error(parNode, "Right hand side must be integer, got: " + rightType);
                     checks++;
                 }
                 return "int";
