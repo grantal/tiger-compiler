@@ -24,7 +24,7 @@ bool typeCheck(Scope::type_t LHS, Scope::type_t RHS,std::shared_ptr<Scope> env){
 	return LHS == RHS;
 }
 
-Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope> env,int &checks) {
+std::string semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope> env,int &checks) {
     if (const ParentASTNode* parNode = dynamic_cast<const ParentASTNode*>(node)) {
         switch (parNode->getNodeType()) {
             case nodeType::PROGRAM:
@@ -49,39 +49,50 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 }
                 return id;
             }
-            case nodeType::RECORD_DEC:{// <id> {}
-                Scope::type_t id = semantic_checks_helper(parNode->_getChild(0),env,checks);
-                if (!env->isType(id)){
-                    semantic_error(parNode, "Record type " + id + " does not exist.");
+            case nodeType::RECORD_DEC:{// <recTypeId> {}
+                //retrieve name of record type in types_
+                Scope::type_t recTypeId = semantic_checks_helper(parNode->_getChild(0),env,checks);
+                if (!env->isType(recTypeId)){
+                    semantic_error(parNode, "Record type " + recTypeId + " does not exist.");
                     checks++;
                 }
-
-                //retrieve recVals[valID := value] into rec_t
-                Scope::rec_t recType;
-                ASTNode::ASTptr currentNode = parNode->_getChild(1);
+                //retrieve proper record type vector of pairs from recTypeT_
+                Scope::rec_t expectedType = env->getRecTypes(recTypeId);
+                //traverse linked list of recs to build up a record type from
+                //the declared record, comparing with expectedType along the way
+                Scope::sym_rec_t newRecord; //will be the declared record we emplace in recs_
+                auto currentNode = dynamic_cast<const ParentASTNode*>(parNode->_getChild(1));
                 Scope::type_t valueID;
-                Scope::type_t valueType;
-
-                while(currentNode != nullptr){
-                    valueID = semantic_checks_helper(parNode->_getChild(0),env,checks);
-                    valueType = semantic_checks_helper(parNode->_getChild(1),env,checks);
-                    if(!env->isType(valueID)){
-                        semantic_error(parNode, "Record Value type " + valueID + " does not exist.");
+                Scope::type_t valueID_t;
+                Scope::type_t value;
+                int recTypesIndex = 0;
+                while(currentNode != nullptr){ //recVals : id '=' exp
+                    valueID = semantic_checks_helper(currentNode->_getChild(0),env,checks);
+                    valueID_t = expectedType[recTypesIndex].second;
+                    value = semantic_checks_helper(currentNode->_getChild(1),env,checks);
+                    if(env->isVar(value)){
+                        value = env->getVarType(value);
+                    }else if(env->isRec(value)){
+                        value = env->getRecType(value);
+                    }
+                    if(expectedType[recTypesIndex].first != valueID){
+                        semantic_error(parNode, "Record Value Id " + valueID + " does not exist.");
                         checks++;
                     }
-                    if(!typeCheck(valueID,valueType,env)){//might need something more sophiscated for this comparison later
+                    if(!typeCheck(valueID_t,value,env)){
                         semantic_error(parNode, "Record Value type mismatch, declared record value does not match record value type.");
                         checks++;
                     }
-                    recType.push_back(valueID);
-                    currentNode = parNode->_getChild(2);
+                    newRecord.push_back(Scope::recVal_t(valueID,value));
+                    if(currentNode->numChildren() < 3){
+                        break;
+                    }
+                    currentNode = dynamic_cast<const ParentASTNode*>(currentNode->_getChild(2));
+                    recTypesIndex++;
                 }
-
-                if(env->getRecTypes(id) != recType){
-                    semantic_error(parNode, "Record type mismatch, declared record does not match record type.");
-                    checks++;
-                }
-                return id;
+                Scope::sym_val_t newRecordEntryId = env->getRecSymRef();
+                env->emplaceRec(newRecordEntryId,newRecord,recTypeId); //building up recs
+                return newRecordEntryId; //return the reference to the record in recs_ that should be the RHS of the assingment this is associated with
             }
             case nodeType::WHILE_DO: {
                 semantic_checks_helper(parNode->_getChild(0),env,checks);
@@ -119,7 +130,7 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                     }
                 }
 
-                return "";
+                return TYPELESS;
 
             }
             case nodeType::FOR_TO_DO:{
@@ -134,13 +145,12 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                     semantic_error(parNode, "iterator high must be integer, got: " + hiType);
                     checks++;
                 }
-                semantic_checks_helper(parNode->_getChild(0), env,checks);
                 // add the iterator variable to the env of the body
                 // the variable "id" stores the name of the iterator
-                ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
+                auto id = semantic_checks_helper(parNode->_getChild(0), env,checks);
                 std::shared_ptr<Scope> newEnv = std::make_shared<Scope>(*env);
                 newEnv->inLoop = true;
-                newEnv->emplaceVar(id, "int");
+                newEnv->emplaceVar(id, "int","int");
                 newEnv->iterName = id;
                 semantic_checks_helper(parNode->_getChild(3),newEnv,checks);
                 return TYPELESS;
@@ -170,9 +180,8 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 }
                 return "";
             case nodeType::TYPE_DEC:{ 
-                semantic_checks_helper(parNode->_getChild(0), env,checks);
                 // add id to the env
-                ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
+                auto id = semantic_checks_helper(parNode->_getChild(0), env,checks); 
                 Scope::type_t baseType = semantic_checks_helper(parNode->_getChild(1), env,checks);
                 // recursive type check
                 // check the base type of the base type of the base type,... etc of the type we just declared
@@ -182,25 +191,25 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                     if (currType == id){
                         semantic_error(parNode, "bad recursive type definition " + id + " = " + baseType);
                         checks++; 
-                        return "";
+                        return TYPELESS;
                     }
                     // set currType to it's base type
                     currType = env->getUserType(currType); 
                 }
                 env->emplaceType(id,baseType);
-                return "";
+                return TYPELESS;
             }
             case nodeType::VAR_DEC:{
-                semantic_checks_helper(parNode->_getChild(0), env,checks);
                 // make sure varible with this id has not been declared
-                ASTNode::string_t id = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))->getVal(); 
+                ASTNode::string_t id = semantic_checks_helper(parNode->_getChild(0), env,checks);
                 if (env->isVar(id)){
                     semantic_error(parNode, "variable " + id + "already exists");
                 }
                 Scope::type_t expType = semantic_checks_helper(parNode->_getChild(1), env,checks);
+                Scope::type_t typeId = expType;
                 // this is the case that we are given a type
                 if (parNode->numChildren() == 3){
-                    Scope::type_t typeId = semantic_checks_helper(parNode->_getChild(2), env,checks); 
+                    typeId = semantic_checks_helper(parNode->_getChild(2), env,checks); 
                     if (env->isType(typeId)) {
                         // type of variable needs to be type of expression
                         if (typeCheck(typeId, expType, env)){ //*might neet more sophisticated comparion
@@ -212,8 +221,8 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                         checks++;
                     }
                 }
-                env->emplaceVar(id, expType);
-                return "";
+                env->emplaceVar(id, expType,typeId);
+                return TYPELESS;
             }
             //uniary integer opperations
             case nodeType::NEGATE:{
@@ -267,11 +276,11 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
             case nodeType::NOT_EQUAL:{
                 Scope::type_t leftType = semantic_checks_helper(parNode->_getChild(0), env,checks);
                 Scope::type_t rightType = semantic_checks_helper(parNode->_getChild(1), env,checks);
-                if (leftType == "invalid"){
+                if (leftType == TYPELESS){
                     semantic_error(parNode, "Left hand side is invalid");
                     checks++;
                 }
-                if (rightType == "invalid"){
+                if (rightType == TYPELESS){
                     semantic_error(parNode, "Right hand side is invalid");
                     checks++;
                 }
@@ -282,7 +291,6 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 return "int"; //bool 1 or 0
             }
             case nodeType::ASSIGNMENT_: {
-                semantic_checks_helper(parNode->_getChild(0), env,checks);
                 semantic_checks_helper(parNode->_getChild(1), env,checks);
                 // check if we are trying to assign to the iterator of the for loop we're in 
                 if(auto idNode = dynamic_cast<const TokenASTNode*>(parNode->_getChild(0))){ 
@@ -293,6 +301,105 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 }
                 return TYPELESS;
             }
+            case nodeType::ARRAY_TYPE:{//'{' tyFields '}' 
+                Scope::rec_t recType;
+                auto currentNode = dynamic_cast<const ParentASTNode*>(parNode->_getChild(0));
+                Scope::type_t valueID;
+                Scope::type_t valueType;
+
+                //traversed linked tyfields
+                while(currentNode != nullptr){
+                    valueID = semantic_checks_helper(currentNode->_getChild(0),env,checks);
+                    valueType = semantic_checks_helper(currentNode->_getChild(1),env,checks);
+                    if(!env->isType(valueType)){
+                        semantic_error(parNode, "Array Value type " + valueID + " does not exist.");
+                        checks++;
+                    }
+                    recType.push_back(Scope::recVal_t(valueID,valueType)); //expand rec type vector
+                    if(currentNode->numChildren() < 3){
+                        break;
+                    }
+                    currentNode = dynamic_cast<const ParentASTNode*>(currentNode->_getChild(2));
+                }
+
+                Scope::type_t newRecordTypeId = env->getRecTypeRef();
+                env->emplaceRecType(newRecordTypeId,recType); //building up rec types
+
+                return newRecordTypeId;
+
+            }
+            case nodeType::REC_TYPE:{//'{' tyFields '}' 
+                Scope::rec_t recType;
+                auto currentNode = dynamic_cast<const ParentASTNode*>(parNode->_getChild(0));
+                Scope::type_t valueID;
+                Scope::type_t valueType;
+
+                //traversed linked tyfields
+                while(currentNode != nullptr){
+                    valueID = semantic_checks_helper(currentNode->_getChild(0),env,checks);
+                    valueType = semantic_checks_helper(currentNode->_getChild(1),env,checks);
+                    if(!env->isType(valueType)){
+                        semantic_error(parNode, "Record Value type " + valueType + " does not exist.");
+                        checks++;
+                    }
+                    recType.push_back(Scope::recVal_t(valueID,valueType)); //expand rec type vector
+                    if(currentNode->numChildren() < 3){
+                        break;
+                    }
+                    currentNode = dynamic_cast<const ParentASTNode*>(currentNode->_getChild(2));
+                }
+
+                Scope::type_t newRecordTypeId = env->getRecTypeRef();
+                env->emplaceRecType(newRecordTypeId,recType); //building up rec types
+                return newRecordTypeId;
+
+            }
+            case nodeType::ARRAY_REF:{
+                //continue through sequence of statements, return type of last one
+                return semantic_checks_helper(parNode->_getChild(0), env,checks);
+            }
+            case nodeType::RECORD_REF:{ //ex parameter.values.first;
+                //get ahold of internal record
+                auto baseRecRef = semantic_checks_helper(parNode->_getChild(0), env,checks);
+                if(!env->isRec(baseRecRef)){
+                    semantic_error(parNode, "Interal Record Ref " + baseRecRef + " is not declared.");
+                    checks++;
+                }
+
+                //ret internal reference to the publically avaible record's internal record
+                auto nextRecId = semantic_checks_helper(parNode->_getChild(1), env,checks);
+                Scope::sym_val_t nextRecRef = env->getRecSymFromRec(nextRecId,baseRecRef);
+                if(nextRecRef == TYPELESS){
+                    semantic_error(parNode, "Next Interal Record ref " + nextRecRef + " is not a part of " + baseRecRef + ".");
+                    checks++;
+                }
+                //and send up reference
+                return nextRecRef;
+            }
+            case nodeType::RECORD_REF_TERM:{ //ex parameter.values.first
+                //get ahold of the publicly availble record
+                auto baseRecId = semantic_checks_helper(parNode->_getChild(0), env,checks);
+                if(!env->isVar(baseRecId)){
+                    semantic_error(parNode, "Record id " + baseRecId + " is not declared.");
+                    checks++;
+                }
+                //get internal reference of publically availble record
+                Scope::sym_val_t baseRecRef = env->getVar(baseRecId);
+
+                //ret internal reference to the publically avaible record's internal record
+                auto nextRecId = semantic_checks_helper(parNode->_getChild(1), env,checks);
+                Scope::sym_val_t nextRecRef = env->getRecSymFromRec(nextRecId,baseRecRef);
+                if(nextRecRef == TYPELESS){
+                    semantic_error(parNode, "Record Id " + nextRecRef + " is not a part of " + baseRecId + ".");
+                    checks++;
+                }
+                //and send up reference
+                return nextRecRef;
+            }
+            case nodeType::SEQUENCE:{
+                //continue through sequence of statements, return type of last one
+                return semantic_checks_helper(parNode->_getChild(0), env,checks);
+            }
             case nodeType::TYPE_ID: {
                 // the type of a type_id will be the id it stores
                 // so var a: blarg := 1 will set a to type blarg
@@ -300,7 +407,7 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
                 return id;
             } 
             default:
-                return "";
+                return TYPELESS;
         }
     }
     else if (const TokenASTNode* tokNode = dynamic_cast<const TokenASTNode*>(node)) {
@@ -311,6 +418,8 @@ Scope::type_t semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope
             return "int";
         case STRINGLIT:
             return "string";
+        case ID:
+            return tokNode->getVal();
         case BREAK: 
             // if we see a break, we must be inside a loop
             if(!env->inLoop) {
