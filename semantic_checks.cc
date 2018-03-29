@@ -529,7 +529,9 @@ std::string semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope> 
     } 
     // not TokenNode or ParentNode, so something went wrong
     else {
-        semantic_error(node, "Node in AST that is neither TokenASTNode nor ParentASTNode");
+        // usually the node we get at this branch is a nullptr so if I sent it to semantic_error
+        // the program would segfault
+        std::cerr << "Node in AST that is neither TokenASTNode nor ParentASTNode" << std::endl;
         checks++;
         return "";
     }
