@@ -254,6 +254,13 @@ TEST_CASE("throw errors correctly, file errorTest.tig","[syntax]") {
     std::cerr.rdbuf(old);
 }
 
+TEST_CASE("parses long lval chaings, file lValTest.tig","[syntax]") {
+    yyin = fopen("tiger-programs/lValTest.tig", "r");
+    auto b = buffman::Buffman(yyin);
+    REQUIRE(yyparse() == 0);
+    std::cout << programNode->toStr() << std::endl;
+}
+
 TEST_CASE("test that all of appel's testfiles that should parse, do parse","[syntax]") {
     for (int i = 1; i <= 48; i++) {
         SECTION("parse test" + std::to_string(i) + ".tig") {
