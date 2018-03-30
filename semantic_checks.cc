@@ -28,10 +28,11 @@ std::string semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope> 
     if (const ParentASTNode* parNode = dynamic_cast<const ParentASTNode*>(node)) {
         switch (parNode->getNodeType()) {
             case nodeType::PROGRAM:
+                std::cout << parNode->toStr() << std::endl;
                 return semantic_checks_helper(parNode->_getChild(0), env, checks);
                 // don't need break since we return
             // make new env that we'll add to with our decs and use in our exps
-            case nodeType::ARRAY_DEC:{ // <id> [size] of <element type>
+            case nodeType::ARRAY_DEC:{ // <id> [size] of [initializer]
                 Scope::type_t id = semantic_checks_helper(parNode->_getChild(0),env,checks);
                 if (!env->isType(id)){
                     semantic_error(parNode, "Array type " + id + " does not exist.");
@@ -43,8 +44,9 @@ std::string semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope> 
                     checks++;
                 }
                 Scope::type_t element = semantic_checks_helper(parNode->_getChild(2),env,checks);
-                if(env->getArrayType(id) != element){
-                    semantic_error(parNode, "Array type mismatch, default array element does not match array type.");
+                auto arrayElmType = env->getArrayType(id);
+                if(arrayElmType != element){
+                    semantic_error(parNode, "Array of must have elements of type " + arrayElmType + " but default element is of type " + element);
                     checks++;
                 }
                 return id;
@@ -209,8 +211,16 @@ std::string semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope> 
                 }
                 return "";
             case nodeType::TYPE_DEC:{ 
-                // add id to the env
                 auto id = semantic_checks_helper(parNode->_getChild(0), env,checks); 
+                // if we're declaring an array type
+                if (auto arrTNode = dynamic_cast<const ParentASTNode*>(parNode->_getChild(0))){
+                    if(arrTNode->getNodeType() == nodeType::ARRAY_TYPE) { 
+                        Scope::type_t baseType = semantic_checks_helper(arrTNode->_getChild(0), env,checks);
+                        env->emplaceArrayType(id, baseType);
+                        return TYPELESS;
+                    }
+                }
+                // add id to the env
                 Scope::type_t baseType = semantic_checks_helper(parNode->_getChild(1), env,checks);
                 // recursive type check
                 // check the base type of the base type of the base type,... etc of the type we just declared
@@ -327,32 +337,8 @@ std::string semantic_checks_helper(ASTNode::ASTptr node, std::shared_ptr<Scope> 
                 }
                 return TYPELESS;
             }
-            case nodeType::ARRAY_TYPE:{//'{' tyFields '}' 
-                Scope::rec_t recType;
-                auto currentNode = dynamic_cast<const ParentASTNode*>(parNode->_getChild(0));
-                Scope::type_t valueID;
-                Scope::type_t valueType;
-
-                //traversed linked tyfields
-                while(currentNode != nullptr){
-                    valueID = semantic_checks_helper(currentNode->_getChild(0),env,checks);
-                    valueType = semantic_checks_helper(currentNode->_getChild(1),env,checks);
-                    if(!env->isType(valueType)){
-                        semantic_error(parNode, "Array Value type " + valueID + " does not exist.");
-                        checks++;
-                    }
-                    recType.push_back(Scope::recVal_t(valueID,valueType)); //expand rec type vector
-                    if(currentNode->numChildren() < 3){
-                        break;
-                    }
-                    currentNode = dynamic_cast<const ParentASTNode*>(currentNode->_getChild(2));
-                }
-
-                Scope::type_t newRecordTypeId = env->getRecTypeRef();
-                env->emplaceRecType(newRecordTypeId,recType); //building up rec types
-
-                return newRecordTypeId;
-
+            case nodeType::ARRAY_TYPE:{// array of typeId 
+                return semantic_checks_helper(parNode->_getChild(0),env,checks);
             }
             case nodeType::REC_TYPE:{//'{' tyFields '}' 
                 Scope::rec_t recType;

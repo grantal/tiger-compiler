@@ -28,7 +28,7 @@ class Scope {
 
     //===============|||ARRAY TYPES|||======================
     using array_t = type_t; //type of array elements
-    using ArrayTypeT = std::map<type_t,array_t>;
+    using ArrayTypeT = std::map<array_t, type_t>;
 
     using sym_array_t = std::vector<array_t>;
     using ArraySymT = std::map<sym_val_t, sym_array_t>;
@@ -135,9 +135,14 @@ class Scope {
     virtual type_t getRecType(sym_val_t r) {
         return recTypes_.at(r);
     } 
+    // add array types
+    virtual void emplaceArrayType(array_t newType, type_t baseType) {
+        arrayTypeT_.emplace(newType, baseType);
+        for (auto it=arrayTypeT_.begin(); it!=arrayTypeT_.end(); ++it) std::cout << it->first << " => " << it->second << '\n';
+    } 
     // get type of elements of array type
-    virtual type_t getArrayType(type_t aT) {
-        return arrayTypeT_[aT];
+    virtual type_t getArrayType(array_t aT) {
+        return arrayTypeT_.at(aT);
     }
     // check if variable or function exist
     virtual bool isVar(sym_id_t v) {
