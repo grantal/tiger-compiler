@@ -39,3 +39,8 @@ This node stores another enum called `nodeType` that says what this node does. L
 ### Array creation vs array indexing
 
 One of the biggest conflicts we had was how to tell `typeId [ exp ] of exp` from `id [ exp ]` (where `typeId -> id`). If the parser had infinite lookahead, it would see the `of` and there would be no problem, but it can only see the `[` and it needs to decide what to do with the id. What we did was change the first rule to `id [ exp ] of exp` and have it create a `typeId` node in the action for that rule, rather than in the `typeId` rule. 
+
+## Semantic things we didnt do
+
+* arrays
+* records inside records inside record
