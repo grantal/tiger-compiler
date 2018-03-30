@@ -34,11 +34,11 @@ enum class nodeType{
 	EMPTY_REC, 		//tiger.y 60,
 	RECORD_DEC, 	//tiger.y 60-61
 	REC_VAL, 		//tiger.y 105 - 106
-	OBJECT, 		//tiger.y 63
 	REFERENCE, 		//tiger.y (reference) 65-66, 116-119
+  RECORD_REF,
+  RECORD_REF_TERM,
 	ARRAY_REF,
 	CALL_FUNC,		//tiger.y 68-69
-	CALL_METHOD,	//tiger.y 71-72
 	NEGATE, 		//tiger.y 74
 	ADD, 			//tiger.y 75
 	SUB, 			//tiger.y 76
@@ -61,18 +61,12 @@ enum class nodeType{
 	LET_IN_END, 	//tiger.y 97-100
 	DECS, 			//tiger.y 130-131
 	TYPE_DEC, 		//tiger.y 135
-	CLASS_DEC, 		//tiger.y 137-138
 	VAR_DEC, 		//tiger.y 140 (?), 154-155
 	FUNC_DEC, 		//tiger.y 142-143
-	PRIM_DEC, 		//tiger.y 145-146
-	IMPORT_, 		//tiger.y 148
-	CLASS_FIELDS, 	//tiger.y 159-160
-	CLASS_FIELD, 	//tiger.y 164-168
-	TYPE_ID, 		//tiger.y 171
+  TYPE_ID,    //tiger.y 171
 	REC_TYPE, 		//tiger.y 173-174, 190-191
 	ARRAY_TYPE, 	//tiger.y 176
-	CLASS_TYPE, 	//tiger.y 178-181
-        TY_FIELDS               //tiger.y 202-203
+  TY_FIELDS               //tiger.y 202-203
 };
 
 ///////////////////////////////////////////////////////////////////////////////

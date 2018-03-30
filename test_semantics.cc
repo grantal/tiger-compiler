@@ -17,6 +17,36 @@ TEST_CASE("example semantic check","[semantics]") {
     REQUIRE(semantic_checks(programNode.get()) == 0);
 }
 
+TEST_CASE("Simple Record semantic check","[semantics]") {
+    auto b = buffman::Buffman("let type myRec = {numTest:int} var myRecVar : myRec := myRec {numTest = 1} in myRecVar end");
+    REQUIRE(yyparse() == 0);
+    std::cout << programNode->toStr() << std::endl;
+    REQUIRE(semantic_checks(programNode.get()) == 0);
+}
+
+TEST_CASE("Record inside Record semantic check","[semantics]") {
+    auto b = buffman::Buffman("let type myRec = {numTest:int} type myRec2 = {innerRec:myRec} var myRecVar : myRec := myRec {numTest = 5} var myRecVar2 : myRec2 := myRec2 {innerRec = myRecVar} in myRecVar.numTest end");
+    REQUIRE(yyparse() == 0);
+    std::cout << programNode->toStr() << std::endl;
+    REQUIRE(semantic_checks(programNode.get()) == 0);
+}
+
+TEST_CASE("Record declared inside Record semantic check","[semantics]") {
+    auto b = buffman::Buffman("let type myRec = {numTest:int} type myRec2 = {innerRec:myRec} var myRecVar2 : myRec2 := myRec2 {innerRec = myRec{numTest = 5}} in myRecVar end");
+    REQUIRE(yyparse() == 0);
+    std::cout << programNode->toStr() << std::endl;
+    REQUIRE(semantic_checks(programNode.get()) == 0);
+}
+
+/*
+TEST_CASE("Record declared inside Record declare inside Record semantic check","[semantics]") {
+    auto b = buffman::Buffman("let type myRec = {numTest:int} type myRec2 = {innerRec:myRec} type myRec3 = {innerRec2:myRec2} var myRecVar3 : myRec3 := myRec3 {innerRec2 = myRec2 {innerRec = myRec {numTest = 5}}} in myRecVar3.innerRec2.innerRec.numTest end");
+    REQUIRE(yyparse() == 0);
+    std::cout << programNode->toStr() << std::endl;
+    REQUIRE(semantic_checks(programNode.get()) == 0);
+}
+*/
+
 TEST_CASE("test semantics for appel's testfiles","[semantics]") {
 
     // the keys are the numbers of the files that should error and the values are
@@ -30,7 +60,7 @@ TEST_CASE("test semantics for appel's testfiles","[semantics]") {
         {15, 3},
         {16, 7},
         {17, 5},
-        {18, 7},
+        {18, 5},
         {19, 8},
         {20, 3},
         {21, 5},
@@ -51,7 +81,7 @@ TEST_CASE("test semantics for appel's testfiles","[semantics]") {
         {45, 5}
     }; 
 
-    for (int i : {9,10,11,12,13,14,15,16,17,20,26,28,29,31,32,33,34,35,36,37,38,39,41,44,46,47,48}) {
+    for (int i = 1; i <= 48; i++) {
         char filename[26];
         sprintf(filename, "tiger-programs/test%d.tig", i);
         yyin = fopen(filename, "r");
@@ -75,5 +105,4 @@ TEST_CASE("test semantics for appel's testfiles","[semantics]") {
         }
     }
 }
-
 } //namespace
