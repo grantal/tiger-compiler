@@ -2,6 +2,23 @@
 
 This is a compiler for the [tiger language](https://www.cs.princeton.edu/~appel/modern/) in C and C++. We use flex and bison. Written by Alex Grant and Matt Atteberry.
 
+## Semantic Checks
+### What works
+* Making sure mutually recursive function definitions are uninterrupted
+* Type checking of `if then` and `if then else` statements
+* Type checking of loop bodies and conditions
+* Making sure `break` only gets called inside a loop
+* Making sure for loop iterator does not get assigned to
+* Type checking for binary and unary operators
+* Mutually recursive type checking
+* checking that variables/functions/types are declared
+* type checking for variable/function declaration
+* type checking for variable assignment
+### What doesnt work
+* arrays
+* records inside records inside record
+
+
 ## Lexer notes
 
 ### comments
@@ -39,8 +56,3 @@ This node stores another enum called `nodeType` that says what this node does. L
 ### Array creation vs array indexing
 
 One of the biggest conflicts we had was how to tell `typeId [ exp ] of exp` from `id [ exp ]` (where `typeId -> id`). If the parser had infinite lookahead, it would see the `of` and there would be no problem, but it can only see the `[` and it needs to decide what to do with the id. What we did was change the first rule to `id [ exp ] of exp` and have it create a `typeId` node in the action for that rule, rather than in the `typeId` rule. 
-
-## Semantic things we didnt do
-
-* arrays
-* records inside records inside record
