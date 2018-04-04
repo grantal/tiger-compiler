@@ -2,18 +2,108 @@
 
 This is a compiler for the [tiger language](https://www.cs.princeton.edu/~appel/modern/) in C and C++. We use flex and bison. Written by Alex Grant and Matt Atteberry.
 
-## Semantic Checks
+## Symbol Tables
+Our class for handling symbol tables is in `symt.hh`. We have a single class, `Scope` that stores:
+ * Primitive types as a set
+ * User defined types as a map from the name of the type to any type they were definied by
+ * A map from array types to the type of their elements
+ * A map from each defined variable, function, array and record to their type (4 maps)
+ * A map from a record type to its key type
+ * A map from a record type to its value type
+ We have a bunch of getters and setters for all of these maps and sets.
+ 
+## Handling Scopes
+We have a `semantic_checks_helper` function which is recursive and a `Scope` variable gets passed to it. When we enter a new scope, we copy the `Scope` variable and pass the copy to `semantic_checks_helper` and recurse on the children of our `ASTNode`.
+ 
+## Semantic error
+We store the line and column number of the beginning of an `ASTNode` in the `ASTNode` object. We then have a function `semantic_error` that takes the node and reports the line and column of the beginning of the error along with a string describing the error
+ 
+## List of Semantic Checks
 ### What works
 * Making sure mutually recursive function definitions are uninterrupted
+```
+let
+
+function do_nothing1(a: int, b: string):int=
+		(do_nothing2(a+1);0)
+
+var d:=0 /* interruption here */
+
+function do_nothing2(d: int):string =
+		(do_nothing1(d, "str");" ")
+
+in
+	do_nothing1(0, "str2")
+end
+```
 * Type checking of `if then` and `if then else` statements
+```
+if 1 then 2          /* error: then should have no value */
+if "3" then ()       /* error: condition should be of type int */
+if 1 then 3 else "4" /* error: then and else need to have same type */
+```
 * Type checking of loop bodies and conditions
+```
+while 1 do 2               /* error: body of loop can return no value */
+while "3" do ()            /* error: condition of while must be int */
+for i := "blah" to 4 do () /* error: index variable must be int */
+for i := 0 to 1 do 2       /* error: body of loop can return no value */
+```
 * Making sure `break` only gets called inside a loop
 * Making sure for loop iterator does not get assigned to
+```
+for i := 0 to 1 do
+  i := 2              /* error: assigning to i which is an iterator */
+```
 * Type checking for binary and unary operators
+```
+"3" + "4"  /* error: can't add strings */
+"3" <> "4" /* this is okay */
+"3" = 4    /* error: can't compare things of different types */
+-"3"       /* error: can't negate strings */
+```
 * Mutually recursive type checking
+```
+/* error: mutually recursive types thet do not pass through record or array */
+let 
+
+type a=c
+type b=a
+type c=d
+type d=a
+
+in
+ ""
+end
+```
 * checking that variables/functions/types are declared
+```
+let 
+  var j := 0
+  var l:mySuperCoolType := 3 /* error: undelcared type mySuperCoolType */
+in
+  (f();                      /* error: undelcared function  f */
+   i := 1)                   /* error: undeclared variable i */
+end
+```
 * type checking for variable/function declaration
+```
+let 
+  function f() : int = "3" /* error: function of type int returns string */
+  function g() = 3         /* error: procedure returns value of type int */
+  var i:int := "blah"       /* error: variable i of type int set to exp of type string */
+in
+  ()
+end
+```
 * type checking for variable assignment
+```
+let
+  var i := 1
+in
+  i := "1" /* error: var i of type int set to exp of type string */
+end
+```
 ### What doesnt work
 * arrays
 * records inside records inside record
